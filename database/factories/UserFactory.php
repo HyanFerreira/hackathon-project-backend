@@ -26,6 +26,7 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'cpf' => fake('pt_BR')->unique()->cpf(false),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
@@ -41,5 +42,13 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Assign the given role to the created user.
+     */
+    public function withRole(string $role): static
+    {
+        return $this->afterCreating(fn (User $user) => $user->assignRole($role));
     }
 }
