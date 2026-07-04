@@ -15,7 +15,6 @@ class EscolaResource extends JsonResource
         return [
             'id' => $this->id,
             'nome' => $this->nome,
-            'cnpj' => $this->cnpj,
             'cidade' => $this->cidade,
             'estado' => $this->estado,
             'status' => $this->status,

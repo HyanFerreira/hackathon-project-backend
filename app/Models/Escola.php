@@ -17,7 +17,6 @@ class Escola extends Model
      */
     protected $fillable = [
         'nome',
-        'cnpj',
         'cidade',
         'estado',
         'status',

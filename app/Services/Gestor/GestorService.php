@@ -23,6 +23,8 @@ class GestorService
      */
     public function create(array $data): User
     {
+        $data['password'] = User::DEFAULT_PASSWORD;
+
         $gestor = User::query()->create($data);
         $gestor->syncRoles([self::ROLE]);
 

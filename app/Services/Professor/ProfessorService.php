@@ -25,6 +25,7 @@ class ProfessorService
     public function create(int $escolaId, array $data): User
     {
         $data['escola_id'] = $escolaId;
+        $data['password'] = User::DEFAULT_PASSWORD;
 
         $professor = User::query()->create($data);
         $professor->syncRoles([self::ROLE]);

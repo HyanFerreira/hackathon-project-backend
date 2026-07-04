@@ -17,7 +17,6 @@ class EscolaFactory extends Factory
     {
         return [
             'nome' => 'Escola '.fake()->unique()->lastName(),
-            'cnpj' => fake()->numerify('##############'),
             'cidade' => fake('pt_BR')->city(),
             'estado' => fake()->randomElement(['SP', 'RJ', 'MG', 'BA', 'RS']),
             'status' => 'ativa',

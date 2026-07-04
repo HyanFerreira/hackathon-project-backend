@@ -20,6 +20,8 @@ class UserService
         $roles = $data['roles'] ?? [];
         unset($data['roles']);
 
+        $data['password'] = User::DEFAULT_PASSWORD;
+
         $user = User::query()->create($data);
         $user->syncRoles($roles);
 

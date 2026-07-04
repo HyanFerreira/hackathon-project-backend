@@ -26,6 +26,12 @@ O gestor da escola terá uma visão administrativa da escola, podendo gerenciar 
 - **Roles do sistema (Spatie, guard `web`):** `admin`, `gestor`, `professor`. O `aluno` não usa roles — é um model separado.
   - Mapeamento em relação ao roadmap original: `manager` → `gestor`, `teacher` → `professor`, `student` → model `Aluno` separado.
 
+### Ajustes pendentes para o frontend
+
+- **Criação de usuários/gestores/professores:** remover o campo `password` dos formulários de criação. O backend agora cria automaticamente com a senha fixa inicial `password`.
+- **Edição de usuários/gestores/professores:** manter o campo `password` como opcional. Se o campo for enviado, o backend altera a senha; se não for enviado, a senha atual permanece.
+- **CRUD de escolas:** remover `cnpj` dos formulários, tabelas, detalhes e payloads. O backend não valida, não persiste e não retorna mais `cnpj` em escolas.
+
 ### Endpoints de login já implementados
 
 ```txt

@@ -11,21 +11,18 @@ class AlunoSeeder extends Seeder
 {
     public function run(): void
     {
-        $central = Escola::query()->where('nome', 'Escola Municipal Central')->first();
-        $escolaId = $central?->id;
+        $principal = Escola::query()->where('nome', EscolaSeeder::PRINCIPAL)->first();
 
         $aluno = Aluno::query()->updateOrCreate(
             ['codigo' => 'ALU001'],
-            ['nome' => 'Davi Rocha', 'escola_id' => $escolaId],
+            ['nome' => 'Davi Rocha', 'escola_id' => $principal?->id],
         );
 
-        // Matricula o aluno na turma 6º Ano A como exemplo.
-        $turma = $central
-            ? Turma::query()->where('escola_id', $central->id)->where('nome', '6º Ano A')->first()
+        // Matricula o aluno no 6º Ano A da escola principal, como exemplo.
+        $turma = $principal
+            ? Turma::query()->where('escola_id', $principal->id)->where('nome', '6º Ano A')->first()
             : null;
 
-        if ($turma) {
-            $turma->alunos()->syncWithoutDetaching([$aluno->id]);
-        }
+        $turma?->alunos()->syncWithoutDetaching([$aluno->id]);
     }
 }

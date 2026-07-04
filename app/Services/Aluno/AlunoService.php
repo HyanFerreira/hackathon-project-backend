@@ -43,6 +43,8 @@ class AlunoService
         $aluno->delete();
     }
 
+
+    
     private function gerarCodigoUnico(): string
     {
         do {

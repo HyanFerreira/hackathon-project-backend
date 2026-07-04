@@ -29,7 +29,7 @@ class UserFactory extends Factory
             'cpf' => fake('pt_BR')->unique()->cpf(false),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => static::$password ??= Hash::make(User::DEFAULT_PASSWORD),
             'remember_token' => Str::random(10),
         ];
     }

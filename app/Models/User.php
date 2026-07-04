@@ -17,6 +17,8 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
+    public const DEFAULT_PASSWORD = 'password';
+
     /**
      * The attributes that are mass assignable.
      *
