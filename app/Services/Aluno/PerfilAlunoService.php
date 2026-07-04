@@ -18,6 +18,7 @@ class PerfilAlunoService
     {
         $perfil = $aluno->perfil()->firstOrCreate([], [
             'pontos' => 0,
+            'pontuacao_total' => 0,
             'xp' => 0,
             'nivel' => 1,
             'energia' => 10,

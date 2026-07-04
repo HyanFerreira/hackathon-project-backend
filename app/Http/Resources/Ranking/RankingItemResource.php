@@ -19,7 +19,8 @@ class RankingItemResource extends JsonResource
                 'nome' => $this->nome,
                 'codigo' => $this->codigo,
             ],
-            'pontos' => $this->perfil?->pontos ?? 0,
+            // No ranking, "pontos" é a pontuação de desempenho (não o saldo da loja).
+            'pontos' => $this->perfil?->pontuacao_total ?? 0,
             'xp' => $this->perfil?->xp ?? 0,
             'nivel' => $this->perfil?->nivel ?? 1,
         ];

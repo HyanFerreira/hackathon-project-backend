@@ -39,7 +39,7 @@ class RankingService
     {
         $alunos = $query
             ->leftJoin('perfis_alunos', 'perfis_alunos.aluno_id', '=', 'alunos.id')
-            ->orderByDesc(DB::raw('COALESCE(perfis_alunos.pontos, 0)'))
+            ->orderByDesc(DB::raw('COALESCE(perfis_alunos.pontuacao_total, 0)'))
             ->orderByDesc(DB::raw('COALESCE(perfis_alunos.xp, 0)'))
             ->orderBy('alunos.nome')
             ->select('alunos.*')

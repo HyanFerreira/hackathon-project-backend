@@ -67,7 +67,7 @@ class ConquistaService
             Conquista::TIPO_RESPONDIDAS => $aluno->respostas()->count(),
             Conquista::TIPO_ACERTOS => $aluno->respostas()->where('correta', true)->count(),
             Conquista::TIPO_SEQUENCIA => $this->maiorSequenciaDeAcertos($aluno),
-            Conquista::TIPO_PONTOS => (int) ($perfil->pontos ?? 0),
+            Conquista::TIPO_PONTOS => (int) ($perfil->pontuacao_total ?? 0),
             Conquista::TIPO_NIVEL => (int) ($perfil->nivel ?? 1),
         ];
     }
@@ -102,6 +102,7 @@ class ConquistaService
         }
 
         $perfil->pontos += $conquista->recompensa_pontos;
+        $perfil->pontuacao_total += $conquista->recompensa_pontos;
         $perfil->xp += $conquista->recompensa_xp;
         $perfil->nivel = intdiv($perfil->xp, 100) + 1;
         $perfil->save();

@@ -115,7 +115,11 @@ Permissão adicional: `gerenciar questoes` → papel **professor**.
 
 ### Área do aluno — responder questões, pontos, XP e energia
 
-- **Perfil gamificado** (`perfis_alunos`, 1—1 com aluno): `pontos`, `xp`, `nivel`, `energia`, `energia_maxima`. Criado sob demanda no primeiro acesso.
+- **Perfil gamificado** (`perfis_alunos`, 1—1 com aluno): `pontos`, `pontuacao_total`, `xp`, `nivel`, `energia`, `energia_maxima`. Criado sob demanda no primeiro acesso.
+- **Duas pontuações distintas:**
+  - **`pontos`** = **saldo gastável** (moeda da loja) — sobe ao ganhar, **desce ao comprar** personagens.
+  - **`pontuacao_total`** = **pontuação de desempenho** — só sobe, **nunca diminui**. É o que o **ranking** (aluno/gestor/professor) usa e o que o gestor enxerga. No JSON do ranking, o campo `pontos` corresponde à `pontuacao_total`.
+  - Ambas sobem juntas ao responder/ganhar conquista/missão; só o saldo cai na loja. Conquistas do tipo `pontos` usam `pontuacao_total`.
 - **Responder questões** (`respostas_alunos`): 1 resposta por questão por aluno (unique). O aluno só vê questões **ativas da sua escola ainda não respondidas**; a visão do aluno **não expõe** qual alternativa é a correta (só revela no feedback).
 - **Toda questão é de múltipla escolha com gabarito** (exatamente 1 alternativa correta).
 - **Feedback sem tom negativo:** o feedback sempre revela o **gabarito** (id + texto) e traz uma **mensagem encorajadora**, tanto no acerto quanto no erro.

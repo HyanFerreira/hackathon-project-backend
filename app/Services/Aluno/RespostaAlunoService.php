@@ -149,7 +149,8 @@ class RespostaAlunoService
                 'respondido_em' => now(),
             ]);
 
-            $perfil->pontos += $pontos;
+            $perfil->pontos += $pontos;              // saldo gastável (loja)
+            $perfil->pontuacao_total += $pontos;     // pontuação de desempenho (ranking)
             $perfil->xp += $xp;
             $perfil->nivel = intdiv($perfil->xp, 100) + 1;
 

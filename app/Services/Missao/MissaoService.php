@@ -116,6 +116,7 @@ class MissaoService
         }
 
         $perfil->pontos += $missao->recompensa_pontos;
+        $perfil->pontuacao_total += $missao->recompensa_pontos;
         $perfil->xp += $missao->recompensa_xp;
         $perfil->nivel = intdiv($perfil->xp, 100) + 1;
         $perfil->save();

@@ -36,6 +36,7 @@ class DashboardController extends Controller
             'turma' => $turma?->only(['id', 'nome']),
             'perfil' => [
                 'pontos' => $perfil->pontos,
+                'pontuacao_total' => $perfil->pontuacao_total,
                 'xp' => $perfil->xp,
                 'nivel' => $perfil->nivel,
                 'energia' => $perfil->energia,

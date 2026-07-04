@@ -15,6 +15,7 @@ class PerfilAluno extends Model
     protected $fillable = [
         'aluno_id',
         'pontos',
+        'pontuacao_total',
         'xp',
         'nivel',
         'energia',
