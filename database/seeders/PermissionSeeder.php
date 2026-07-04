@@ -28,6 +28,9 @@ class PermissionSeeder extends Seeder
             'gerenciar alunos',
             'gerenciar vinculos',
         ],
+        'professor' => [
+            'gerenciar questoes',
+        ],
     ];
 
     public function run(): void

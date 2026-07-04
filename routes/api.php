@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\Gestor\AlunoController;
 use App\Http\Controllers\Api\Gestor\ProfessorController;
 use App\Http\Controllers\Api\Gestor\TurmaController;
 use App\Http\Controllers\Api\Gestor\VinculoController;
+use App\Http\Controllers\Api\Professor\QuestaoController;
+use App\Http\Controllers\Api\Referencia\DisciplinaController;
+use App\Http\Controllers\Api\Referencia\HabilidadeController;
 use App\Http\Controllers\Api\Role\RoleController;
 use App\Http\Controllers\Api\User\UserController;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +36,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('permission:gerenciar gestores,sanctum')
             ->apiResource('gestores', GestorController::class)
             ->parameters(['gestores' => 'gestor']);
+    });
+
+    /*
+     * Referência BNCC — disciplinas e habilidades (somente leitura),
+     * disponíveis para qualquer usuário autenticado.
+     */
+    Route::get('disciplinas', [DisciplinaController::class, 'index'])->name('disciplinas.index');
+    Route::get('disciplinas/{disciplina}', [DisciplinaController::class, 'show'])->name('disciplinas.show');
+    Route::get('habilidades', [HabilidadeController::class, 'index'])->name('habilidades.index');
+    Route::get('habilidades/{habilidade}', [HabilidadeController::class, 'show'])->name('habilidades.show');
+
+    /*
+     * Área do professor — gerencia o próprio banco de questões (avaliadas
+     * por habilidade da BNCC), no escopo da sua escola.
+     */
+    Route::middleware('permission:gerenciar questoes,sanctum')->prefix('professor')->group(function () {
+        Route::apiResource('questoes', QuestaoController::class)->parameters(['questoes' => 'questao']);
     });
 
     /*

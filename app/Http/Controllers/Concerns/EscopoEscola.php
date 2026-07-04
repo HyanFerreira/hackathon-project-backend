@@ -11,6 +11,11 @@ trait EscopoEscola
 {
     protected function escolaDoGestor(Request $request): int
     {
+        return $this->escolaDoUsuario($request);
+    }
+
+    protected function escolaDoUsuario(Request $request): int
+    {
         return (int) $request->user()->escola_id;
     }
 

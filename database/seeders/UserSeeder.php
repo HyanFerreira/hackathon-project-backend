@@ -33,10 +33,5 @@ class UserSeeder extends Seeder
 
             $model->syncRoles([$user['role']]);
         }
-
-        User::factory()
-            ->count(10)
-            ->withRole('professor')
-            ->create(['escola_id' => $central?->id]);
     }
 }
