@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Aluno;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Aluno\ResponderQuestaoRequest;
+use App\Http\Resources\Aluno\DisciplinaProgressoResource;
 use App\Http\Resources\Aluno\PerfilAlunoResource;
 use App\Http\Resources\Aluno\QuestaoAlunoResource;
 use App\Http\Resources\Conquista\ConquistaResource;
@@ -22,8 +23,22 @@ class QuestaoController extends Controller
     {
         $aluno = $request->user();
         $disciplinaId = $request->integer('disciplina_id') ?: null;
+        $aleatorio = $request->boolean('aleatorio');
+        $limite = $request->integer('limite') ?: null;
 
-        return QuestaoAlunoResource::collection($this->service->disponiveis($aluno, $disciplinaId));
+        return QuestaoAlunoResource::collection(
+            $this->service->disponiveis($aluno, $disciplinaId, $aleatorio, $limite),
+        );
+    }
+
+    /**
+     * Disciplinas com questões disponíveis para o aluno, com progresso.
+     */
+    public function disciplinas(Request $request): AnonymousResourceCollection
+    {
+        return DisciplinaProgressoResource::collection(
+            $this->service->disciplinasComProgresso($request->user()),
+        );
     }
 
     public function responder(ResponderQuestaoRequest $request, Questao $questao): JsonResponse
@@ -48,7 +63,8 @@ class QuestaoController extends Controller
             'conquistas_desbloqueadas' => ConquistaResource::collection($resultado['conquistas_desbloqueadas']),
             'missoes_concluidas' => MissaoResource::collection($resultado['missoes_concluidas']),
             'personagem' => $this->personagemFeedback($resultado['personagem']),
-            'perfil' => new PerfilAlunoResource($resultado['perfil']),
+            // Envolto em `data` para casar com o shape esperado pelo frontend (perfil.data).
+            'perfil' => ['data' => new PerfilAlunoResource($resultado['perfil'])],
         ]);
     }
 

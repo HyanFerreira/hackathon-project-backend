@@ -43,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('aluno')->prefix('aluno')->group(function () {
         Route::get('me', [AuthController::class, 'meAluno'])->name('auth.aluno.me');
         Route::get('perfil', [AlunoPerfilController::class, 'show'])->name('aluno.perfil');
+        Route::get('disciplinas', [AlunoQuestaoController::class, 'disciplinas'])->name('aluno.disciplinas');
         Route::get('questoes', [AlunoQuestaoController::class, 'index'])->name('aluno.questoes.index');
         Route::post('questoes/{questao}/responder', [AlunoQuestaoController::class, 'responder'])->name('aluno.questoes.responder');
         Route::get('respostas', [AlunoRespostaController::class, 'index'])->name('aluno.respostas.index');

@@ -127,12 +127,19 @@ Permissão adicional: `gerenciar questoes` → papel **professor**.
 - **Energia:** máx. 10; regenera 1 a cada 10 min (sob demanda). Responder exige energia ≥ 1; **acertar não consome, errar consome 1**.
 - Acesso restrito a **tokens de aluno** via middleware `aluno` (`GarantirAluno`).
 
+**Praticar questões (por disciplina e aleatórias):**
+
+- `GET /api/aluno/disciplinas` — disciplinas com questões na escola do aluno + **progresso** (`total`, `respondidas`, `disponiveis`). Alimenta o seletor "por disciplina" e a lista de disciplinas do lobby.
+- `GET /api/aluno/questoes?disciplina_id=` — filtra por disciplina específica.
+- `GET /api/aluno/questoes?aleatorio=1&limite=N` — questões em ordem aleatória (mistura de disciplinas), limitadas a N (máx. 50).
+
 Endpoints (aluno):
 
 ```txt
 GET  /api/aluno/me
 GET  /api/aluno/perfil
-GET  /api/aluno/questoes?disciplina_id=          (disponíveis, sem 'correta')
+GET  /api/aluno/disciplinas                       (disciplinas com progresso)
+GET  /api/aluno/questoes?disciplina_id=&aleatorio=&limite=   (disponíveis, sem 'correta')
 POST /api/aluno/questoes/{questao}/responder     (body: alternativa_id) -> feedback + perfil
 GET  /api/aluno/respostas                        (histórico)
 ```

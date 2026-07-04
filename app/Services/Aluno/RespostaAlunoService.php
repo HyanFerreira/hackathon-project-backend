@@ -3,6 +3,7 @@
 namespace App\Services\Aluno;
 
 use App\Models\Aluno;
+use App\Models\Disciplina;
 use App\Models\Questao;
 use App\Models\QuestaoAlternativa;
 use App\Services\Conquista\ConquistaService;
@@ -30,10 +31,14 @@ class RespostaAlunoService
         private readonly PersonagemService $personagens,
     ) {}
 
+    /** Limite máximo de questões retornadas por requisição. */
+    private const LIMITE_MAXIMO = 50;
+
     /**
      * Questões que o aluno ainda pode responder (mesma escola, ativas e não respondidas).
+     * Suporta filtro por disciplina, ordem aleatória e limite de quantidade.
      */
-    public function disponiveis(Aluno $aluno, ?int $disciplinaId = null): Collection
+    public function disponiveis(Aluno $aluno, ?int $disciplinaId = null, bool $aleatorio = false, ?int $limite = null): Collection
     {
         return Questao::query()
             ->where('escola_id', $aluno->escola_id)
@@ -44,8 +49,51 @@ class RespostaAlunoService
                 fn ($h) => $h->where('disciplina_id', $disciplinaId),
             ))
             ->with(['habilidades.disciplina', 'alternativas'])
-            ->latest('id')
+            ->when($aleatorio, fn ($q) => $q->inRandomOrder(), fn ($q) => $q->latest('id'))
+            ->when($limite, fn ($q) => $q->limit(min($limite, self::LIMITE_MAXIMO)))
             ->get();
+    }
+
+    /**
+     * Disciplinas com questões na escola do aluno, com o progresso dele em cada uma.
+     *
+     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     */
+    public function disciplinasComProgresso(Aluno $aluno): \Illuminate\Support\Collection
+    {
+        $totais = DB::table('questoes')
+            ->join('habilidade_questao', 'habilidade_questao.questao_id', '=', 'questoes.id')
+            ->join('habilidades', 'habilidades.id', '=', 'habilidade_questao.habilidade_id')
+            ->where('questoes.escola_id', $aluno->escola_id)
+            ->where('questoes.status', 'ativa')
+            ->groupBy('habilidades.disciplina_id')
+            ->selectRaw('habilidades.disciplina_id as disciplina_id, COUNT(DISTINCT questoes.id) as total')
+            ->pluck('total', 'disciplina_id');
+
+        $respondidas = DB::table('respostas_alunos')
+            ->join('questoes', 'questoes.id', '=', 'respostas_alunos.questao_id')
+            ->join('habilidade_questao', 'habilidade_questao.questao_id', '=', 'questoes.id')
+            ->join('habilidades', 'habilidades.id', '=', 'habilidade_questao.habilidade_id')
+            ->where('respostas_alunos.aluno_id', $aluno->id)
+            ->groupBy('habilidades.disciplina_id')
+            ->selectRaw('habilidades.disciplina_id as disciplina_id, COUNT(DISTINCT questoes.id) as total')
+            ->pluck('total', 'disciplina_id');
+
+        return Disciplina::query()
+            ->whereIn('id', $totais->keys())
+            ->orderBy('nome')
+            ->get()
+            ->map(function (Disciplina $disciplina) use ($totais, $respondidas) {
+                $total = (int) ($totais[$disciplina->id] ?? 0);
+                $feitas = (int) ($respondidas[$disciplina->id] ?? 0);
+
+                return [
+                    'disciplina' => $disciplina,
+                    'total' => $total,
+                    'respondidas' => $feitas,
+                    'disponiveis' => max(0, $total - $feitas),
+                ];
+            });
     }
 
     /**
