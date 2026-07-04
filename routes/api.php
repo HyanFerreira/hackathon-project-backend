@@ -1,17 +1,24 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\Admin\EscolaController;
 use App\Http\Controllers\Api\Admin\GestorController;
 use App\Http\Controllers\Api\Admin\ImpersonateController;
+use App\Http\Controllers\Api\Aluno\DashboardController as AlunoDashboardController;
 use App\Http\Controllers\Api\Aluno\PerfilController as AlunoPerfilController;
 use App\Http\Controllers\Api\Aluno\QuestaoController as AlunoQuestaoController;
+use App\Http\Controllers\Api\Aluno\RankingController as AlunoRankingController;
 use App\Http\Controllers\Api\Aluno\RespostaController as AlunoRespostaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Gestor\AlunoController;
+use App\Http\Controllers\Api\Gestor\DashboardController as GestorDashboardController;
 use App\Http\Controllers\Api\Gestor\ProfessorController;
+use App\Http\Controllers\Api\Gestor\RankingController as GestorRankingController;
 use App\Http\Controllers\Api\Gestor\TurmaController;
 use App\Http\Controllers\Api\Gestor\VinculoController;
+use App\Http\Controllers\Api\Professor\DashboardController as ProfessorDashboardController;
 use App\Http\Controllers\Api\Professor\QuestaoController;
+use App\Http\Controllers\Api\Professor\RankingController as ProfessorRankingController;
 use App\Http\Controllers\Api\Referencia\DisciplinaController;
 use App\Http\Controllers\Api\Referencia\HabilidadeController;
 use App\Http\Controllers\Api\Role\RoleController;
@@ -36,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('questoes', [AlunoQuestaoController::class, 'index'])->name('aluno.questoes.index');
         Route::post('questoes/{questao}/responder', [AlunoQuestaoController::class, 'responder'])->name('aluno.questoes.responder');
         Route::get('respostas', [AlunoRespostaController::class, 'index'])->name('aluno.respostas.index');
+        Route::get('dashboard', [AlunoDashboardController::class, 'index'])->name('aluno.dashboard');
+        Route::get('ranking/turma', [AlunoRankingController::class, 'turma'])->name('aluno.ranking.turma');
+        Route::get('ranking/escola', [AlunoRankingController::class, 'escola'])->name('aluno.ranking.escola');
     });
 
     Route::apiResource('users', UserController::class);
@@ -51,6 +61,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('permission:gerenciar gestores,sanctum')
             ->apiResource('gestores', GestorController::class)
             ->parameters(['gestores' => 'gestor']);
+
+        Route::get('dashboard', [AdminDashboardController::class, 'index'])
+            ->middleware('role:admin,sanctum')->name('admin.dashboard');
     });
 
     /*
@@ -82,6 +95,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('questoes', QuestaoController::class)->parameters(['questoes' => 'questao']);
     });
 
+    Route::middleware('role:professor,sanctum')->prefix('professor')->group(function () {
+        Route::get('dashboard', [ProfessorDashboardController::class, 'index'])->name('professor.dashboard');
+        Route::get('ranking/turmas/{turma}', [ProfessorRankingController::class, 'turma'])->name('professor.ranking.turma');
+    });
+
     /*
      * Área do gestor — gerencia turmas, professores, alunos e os vínculos
      * (turma↔professor e turma↔aluno), sempre no escopo da própria escola.
@@ -106,6 +124,12 @@ Route::middleware('auth:sanctum')->group(function () {
                 ->name('gestor.turmas.alunos.vincular');
             Route::delete('turmas/{turma}/alunos/{aluno}', [VinculoController::class, 'desvincularAluno'])
                 ->name('gestor.turmas.alunos.desvincular');
+        });
+
+        Route::middleware('role:gestor,sanctum')->group(function () {
+            Route::get('dashboard', [GestorDashboardController::class, 'index'])->name('gestor.dashboard');
+            Route::get('ranking/escola', [GestorRankingController::class, 'escola'])->name('gestor.ranking.escola');
+            Route::get('ranking/turmas/{turma}', [GestorRankingController::class, 'turma'])->name('gestor.ranking.turma');
         });
     });
 });
