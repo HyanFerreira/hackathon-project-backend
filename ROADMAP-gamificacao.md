@@ -133,6 +133,12 @@ Permissão adicional: `gerenciar questoes` → papel **professor**.
 - `GET /api/aluno/questoes?disciplina_id=` — filtra por disciplina específica.
 - `GET /api/aluno/questoes?aleatorio=1&limite=N` — questões em ordem aleatória (mistura de disciplinas), limitadas a N (máx. 50).
 
+**Registro de pontuação:** a cada resposta, o backend grava tanto o **histórico** (`respostas_alunos`: `pontos_ganhos`, `xp_ganho`, `energia_gasta`, `correta`, `respondido_em`) quanto a **pontuação acumulada** (`perfis_alunos`: `pontos`, `xp`, `nivel`).
+
+**Conteúdo de exemplo:** `QuestaoSeeder` popula **10 questões (6º ano)** em 5 disciplinas da BNCC (Matemática, Português, Ciências, História, Geografia), cada uma com 4 alternativas e gabarito — dá conteúdo real para os dois modos de prática.
+
+**Shape do `responder`:** o campo `perfil` da resposta vem **envolto em `data`** (`perfil.data`), igual ao `GET /aluno/perfil`, para casar com o frontend. O feedback também traz `conquistas_desbloqueadas`, `missoes_concluidas` e `personagem` (com `subiu_nivel`).
+
 Endpoints (aluno):
 
 ```txt
