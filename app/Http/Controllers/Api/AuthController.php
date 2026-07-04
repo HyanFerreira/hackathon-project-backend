@@ -31,7 +31,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return response()->json([
-            'user' => new UserResource(Auth::guard('web')->user()),
+            'user' => new UserResource(Auth::guard('web')->user()?->load('roles')),
         ]);
     }
 
@@ -50,7 +50,7 @@ class AuthController extends Controller
         $token = $user->createToken('insomnia')->plainTextToken;
 
         return response()->json([
-            'user' => new UserResource($user),
+            'user' => new UserResource($user->load('roles')),
             'token' => $token,
         ]);
     }
@@ -77,7 +77,7 @@ class AuthController extends Controller
 
     public function me(Request $request): UserResource
     {
-        return new UserResource($request->user());
+        return new UserResource($request->user()->load('roles'));
     }
 
     public function meAluno(Request $request): AlunoResource
