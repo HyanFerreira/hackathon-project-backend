@@ -5,6 +5,9 @@ namespace App\Services\Aluno;
 use App\Models\Aluno;
 use App\Models\Questao;
 use App\Models\QuestaoAlternativa;
+use App\Services\Conquista\ConquistaService;
+use App\Services\Missao\MissaoService;
+use App\Services\Personagem\PersonagemService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -20,7 +23,12 @@ class RespostaAlunoService
 
     private const ENERGIA_ERRO = 1;
 
-    public function __construct(private readonly PerfilAlunoService $perfis) {}
+    public function __construct(
+        private readonly PerfilAlunoService $perfis,
+        private readonly ConquistaService $conquistas,
+        private readonly MissaoService $missoes,
+        private readonly PersonagemService $personagens,
+    ) {}
 
     /**
      * Questões que o aluno ainda pode responder (mesma escola, ativas e não respondidas).
@@ -104,6 +112,12 @@ class RespostaAlunoService
 
             $perfil->save();
 
+            // Conquistas e missões usam o mesmo perfil (as recompensas somam nele).
+            $aluno->setRelation('perfil', $perfil);
+            $conquistasDesbloqueadas = $this->conquistas->avaliar($aluno);
+            $missoesConcluidas = $this->missoes->avaliar($aluno);
+            $personagem = $this->personagens->registrarResposta($aluno);
+
             return [
                 'correta' => $correta,
                 'gabarito' => $gabarito ? ['id' => $gabarito->id, 'texto' => $gabarito->texto] : null,
@@ -113,6 +127,9 @@ class RespostaAlunoService
                 'pontos_ganhos' => $pontos,
                 'xp_ganho' => $xp,
                 'energia_gasta' => $energiaGasta,
+                'conquistas_desbloqueadas' => $conquistasDesbloqueadas,
+                'missoes_concluidas' => $missoesConcluidas,
+                'personagem' => $personagem,
                 'resposta' => $resposta,
                 'perfil' => $perfil,
             ];

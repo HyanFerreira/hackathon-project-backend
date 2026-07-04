@@ -4,8 +4,11 @@ use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardControll
 use App\Http\Controllers\Api\Admin\EscolaController;
 use App\Http\Controllers\Api\Admin\GestorController;
 use App\Http\Controllers\Api\Admin\ImpersonateController;
+use App\Http\Controllers\Api\Aluno\ConquistaController as AlunoConquistaController;
 use App\Http\Controllers\Api\Aluno\DashboardController as AlunoDashboardController;
+use App\Http\Controllers\Api\Aluno\MissaoController as AlunoMissaoController;
 use App\Http\Controllers\Api\Aluno\PerfilController as AlunoPerfilController;
+use App\Http\Controllers\Api\Aluno\PersonagemController as AlunoPersonagemController;
 use App\Http\Controllers\Api\Aluno\QuestaoController as AlunoQuestaoController;
 use App\Http\Controllers\Api\Aluno\RankingController as AlunoRankingController;
 use App\Http\Controllers\Api\Aluno\RespostaController as AlunoRespostaController;
@@ -46,6 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('dashboard', [AlunoDashboardController::class, 'index'])->name('aluno.dashboard');
         Route::get('ranking/turma', [AlunoRankingController::class, 'turma'])->name('aluno.ranking.turma');
         Route::get('ranking/escola', [AlunoRankingController::class, 'escola'])->name('aluno.ranking.escola');
+        Route::get('conquistas', [AlunoConquistaController::class, 'index'])->name('aluno.conquistas');
+        Route::get('missoes', [AlunoMissaoController::class, 'index'])->name('aluno.missoes');
+
+        Route::get('loja', [AlunoPersonagemController::class, 'loja'])->name('aluno.loja');
+        Route::post('loja/{personagem}/comprar', [AlunoPersonagemController::class, 'comprar'])->name('aluno.loja.comprar');
+        Route::get('personagens', [AlunoPersonagemController::class, 'inventario'])->name('aluno.personagens');
+        Route::post('personagens/{personagem}/equipar', [AlunoPersonagemController::class, 'equipar'])->name('aluno.personagens.equipar');
     });
 
     Route::apiResource('users', UserController::class);

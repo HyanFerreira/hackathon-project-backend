@@ -65,4 +65,26 @@ class Aluno extends Authenticatable
     {
         return $this->hasMany(RespostaAluno::class);
     }
+
+    /**
+     * Conquistas já desbloqueadas pelo aluno.
+     *
+     * @return BelongsToMany<Conquista, $this>
+     */
+    public function conquistas(): BelongsToMany
+    {
+        return $this->belongsToMany(Conquista::class, 'aluno_conquista', 'aluno_id', 'conquista_id')
+            ->withPivot('desbloqueada_em')
+            ->withTimestamps();
+    }
+
+    /**
+     * Personagens comprados pelo aluno.
+     *
+     * @return HasMany<AlunoPersonagem, $this>
+     */
+    public function personagens(): HasMany
+    {
+        return $this->hasMany(AlunoPersonagem::class);
+    }
 }

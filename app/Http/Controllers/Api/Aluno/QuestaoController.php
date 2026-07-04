@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Aluno\ResponderQuestaoRequest;
 use App\Http\Resources\Aluno\PerfilAlunoResource;
 use App\Http\Resources\Aluno\QuestaoAlunoResource;
+use App\Http\Resources\Conquista\ConquistaResource;
+use App\Http\Resources\Missao\MissaoResource;
 use App\Models\Questao;
 use App\Services\Aluno\RespostaAlunoService;
 use Illuminate\Http\JsonResponse;
@@ -43,7 +45,31 @@ class QuestaoController extends Controller
             'pontos_ganhos' => $resultado['pontos_ganhos'],
             'xp_ganho' => $resultado['xp_ganho'],
             'energia_gasta' => $resultado['energia_gasta'],
+            'conquistas_desbloqueadas' => ConquistaResource::collection($resultado['conquistas_desbloqueadas']),
+            'missoes_concluidas' => MissaoResource::collection($resultado['missoes_concluidas']),
+            'personagem' => $this->personagemFeedback($resultado['personagem']),
             'perfil' => new PerfilAlunoResource($resultado['perfil']),
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $dados
+     * @return array<string, mixed>|null
+     */
+    private function personagemFeedback(?array $dados): ?array
+    {
+        if ($dados === null) {
+            return null;
+        }
+
+        $personagem = $dados['personagem'];
+
+        return [
+            'chave' => $personagem->chave,
+            'nome' => $personagem->nome,
+            'nivel' => $dados['nivel'],
+            'subiu_nivel' => $dados['subiu_nivel'],
+            'imagem' => $personagem->imagem($dados['nivel']),
+        ];
     }
 }

@@ -187,6 +187,32 @@ GET /api/aluno/ranking/escola
 
 ---
 
+### Conquistas (marcos permanentes)
+
+- **`conquistas`** (referência global, seed via `ConquistaSeeder`): `nome`, `descricao`, `icone`, `tipo`, `meta`, `recompensa_pontos`, `recompensa_xp`, `status`. Ex.: *Estudioso*, *Foco Total*, *Certeiro*, *Gênio*, *Lenda da Escola*.
+- **Tipos de condição:** `questoes_respondidas`, `acertos`, `sequencia_acertos` (maior sequência), `pontos`, `nivel`.
+- **`aluno_conquista`** (pivot): desbloqueios do aluno com `desbloqueada_em` (unique aluno+conquista).
+- **Desbloqueio automático:** a cada resposta, o `ConquistaService` reavalia as estatísticas do aluno, desbloqueia as recém-alcançadas e **aplica as recompensas** (pontos/XP somam no perfil). As novas conquistas voltam no feedback de `responder` em `conquistas_desbloqueadas`.
+- **Listagem:** `GET /api/aluno/conquistas` mostra todas com `atual`, `meta`, `desbloqueada` e `desbloqueada_em` (progresso).
+
+---
+
+### Missões (objetivos temporários)
+
+- **`missoes`** (referência global, seed via `MissaoSeeder`): `titulo`, `descricao`, `icone`, `tipo` (`responder`/`acertar`), `meta`, `periodo` (`diaria`/`semanal`), `recompensa_pontos`, `recompensa_xp`.
+- **`aluno_missao`**: progresso por período (`referencia` = `Y-m-d` na diária, `o-\WW` na semanal), `progresso`, `concluida`, `concluida_em` (unique aluno+missao+referencia). O período "reseta" naturalmente ao trocar a referência.
+- **Progresso ao vivo:** contado sobre `respostas_alunos` dentro da janela do período. A cada resposta, `MissaoService::avaliar` conclui as recém-completadas e aplica recompensas; voltam no feedback em `missoes_concluidas`.
+- Endpoint: `GET /api/aluno/missoes`.
+
+### Loja e personagens que evoluem
+
+- **`personagens`** (catálogo global, seed via `PersonagemSeeder`): `chave` (casa com o arquivo do front, ex.: `grunt_chibi_level_1.png`), `nome`, `tier` (comum/raro), `preco`, `nivel_maximo` (3). As **imagens ficam no frontend**; o backend guarda `chave` + nível.
+- **`aluno_personagem`**: `nivel`, `questoes_respondidas` (com ele equipado), `equipado`, `comprado_em` (unique aluno+personagem).
+- **Regra:** o aluno **compra** um personagem gastando pontos e o **equipa** (só 1 equipado). A cada questão respondida com ele equipado, `questoes_respondidas` sobe e o personagem **evolui de nível** (nível 2 em 10 questões, nível 3 em 30). No feedback de `responder` vem `personagem` com `subiu_nivel`.
+- Endpoints: `GET /api/aluno/loja`, `POST /api/aluno/loja/{personagem}/comprar`, `GET /api/aluno/personagens`, `POST /api/aluno/personagens/{personagem}/equipar`.
+
+---
+
 ### Convenção de nomes
 
 - **Domínio novo em português** para tabelas, colunas e models (`alunos`, `escolas`, `turmas`, `disciplinas`, `questoes`, etc.).
