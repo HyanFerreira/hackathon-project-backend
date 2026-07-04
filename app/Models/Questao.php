@@ -48,6 +48,14 @@ class Questao extends Model
     }
 
     /**
+     * @return HasMany<RespostaAluno, $this>
+     */
+    public function respostas(): HasMany
+    {
+        return $this->hasMany(RespostaAluno::class);
+    }
+
+    /**
      * @return BelongsToMany<Habilidade, $this>
      */
     public function habilidades(): BelongsToMany

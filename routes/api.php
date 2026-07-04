@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Api\Admin\EscolaController;
 use App\Http\Controllers\Api\Admin\GestorController;
+use App\Http\Controllers\Api\Admin\ImpersonateController;
+use App\Http\Controllers\Api\Aluno\PerfilController as AlunoPerfilController;
+use App\Http\Controllers\Api\Aluno\QuestaoController as AlunoQuestaoController;
+use App\Http\Controllers\Api\Aluno\RespostaController as AlunoRespostaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Gestor\AlunoController;
 use App\Http\Controllers\Api\Gestor\ProfessorController;
@@ -20,8 +24,19 @@ Route::post('/login/aluno', [AuthController::class, 'loginAluno'])->name('auth.l
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
-    Route::get('/aluno/me', [AuthController::class, 'meAluno'])->name('auth.aluno.me');
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+    /*
+     * Área do aluno — perfil gamificado, responder questões e histórico.
+     * Restrita a tokens de aluno (middleware `aluno`).
+     */
+    Route::middleware('aluno')->prefix('aluno')->group(function () {
+        Route::get('me', [AuthController::class, 'meAluno'])->name('auth.aluno.me');
+        Route::get('perfil', [AlunoPerfilController::class, 'show'])->name('aluno.perfil');
+        Route::get('questoes', [AlunoQuestaoController::class, 'index'])->name('aluno.questoes.index');
+        Route::post('questoes/{questao}/responder', [AlunoQuestaoController::class, 'responder'])->name('aluno.questoes.responder');
+        Route::get('respostas', [AlunoRespostaController::class, 'index'])->name('aluno.respostas.index');
+    });
 
     Route::apiResource('users', UserController::class);
     Route::apiResource('roles', RoleController::class);
@@ -36,6 +51,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('permission:gerenciar gestores,sanctum')
             ->apiResource('gestores', GestorController::class)
             ->parameters(['gestores' => 'gestor']);
+    });
+
+    /*
+     * Impersonação — apenas admin vira outra conta (gestor, professor ou aluno).
+     * `parar` roda com o token de impersonação (qualquer autenticado).
+     */
+    Route::prefix('impersonate')->group(function () {
+        Route::post('user/{user}', [ImpersonateController::class, 'user'])
+            ->middleware('role:admin,sanctum')->name('impersonate.user');
+        Route::post('aluno/{aluno}', [ImpersonateController::class, 'aluno'])
+            ->middleware('role:admin,sanctum')->name('impersonate.aluno');
+        Route::post('parar', [ImpersonateController::class, 'parar'])->name('impersonate.parar');
     });
 
     /*
