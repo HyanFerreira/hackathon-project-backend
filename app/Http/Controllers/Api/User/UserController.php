@@ -14,9 +14,7 @@ use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
-    public function __construct(private readonly UserService $service)
-    {
-    }
+    public function __construct(private readonly UserService $service) {}
 
     public function index(): AnonymousResourceCollection
     {

@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,11 +23,31 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'escola_id',
         'name',
         'cpf',
         'email',
         'password',
     ];
+
+    /**
+     * @return BelongsTo<Escola, $this>
+     */
+    public function escola(): BelongsTo
+    {
+        return $this->belongsTo(Escola::class);
+    }
+
+    /**
+     * Turmas que o usuário leciona (quando professor).
+     *
+     * @return BelongsToMany<Turma, $this>
+     */
+    public function turmas(): BelongsToMany
+    {
+        return $this->belongsToMany(Turma::class, 'professor_turma', 'professor_id', 'turma_id')
+            ->withTimestamps();
+    }
 
     /**
      * The attributes that should be hidden for serialization.

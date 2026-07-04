@@ -14,9 +14,7 @@ use Illuminate\Http\Response;
 
 class RoleController extends Controller
 {
-    public function __construct(private readonly RoleService $service)
-    {
-    }
+    public function __construct(private readonly RoleService $service) {}
 
     public function index(): AnonymousResourceCollection
     {

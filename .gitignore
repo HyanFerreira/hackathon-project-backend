@@ -19,6 +19,8 @@
 /storage/*.key
 /storage/pail
 /vendor
+/tests
+/ROADMAP-gamificacao.md
 Homestead.json
 Homestead.yaml
 Thumbs.db

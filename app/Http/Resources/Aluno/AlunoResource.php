@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Resources\User;
+namespace App\Http\Resources\Aluno;
 
-use App\Http\Resources\Role\RoleResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class AlunoResource extends JsonResource
 {
     /**
      * @return array<string, mixed>
@@ -16,10 +15,8 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'escola_id' => $this->escola_id,
-            'name' => $this->name,
-            'cpf' => $this->cpf,
-            'email' => $this->email,
-            'roles' => RoleResource::collection($this->whenLoaded('roles')),
+            'nome' => $this->nome,
+            'codigo' => $this->codigo,
         ];
     }
 }

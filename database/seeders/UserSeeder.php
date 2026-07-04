@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Escola;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -10,10 +11,12 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        $central = Escola::query()->where('nome', 'Escola Municipal Central')->first();
+
         $users = [
-            ['name' => 'Ana Souza', 'cpf' => '52998224725', 'email' => 'ana@example.com', 'role' => 'admin'],
-            ['name' => 'Bruno Lima', 'cpf' => '11144477735', 'email' => 'bruno@example.com', 'role' => 'user'],
-            ['name' => 'Carla Mendes', 'cpf' => '39053344705', 'email' => 'carla@example.com', 'role' => 'user'],
+            ['name' => 'Ana Souza', 'cpf' => '52998224725', 'email' => 'ana@example.com', 'role' => 'admin', 'escola_id' => null],
+            ['name' => 'Bruno Lima', 'cpf' => '11144477735', 'email' => 'bruno@example.com', 'role' => 'gestor', 'escola_id' => $central?->id],
+            ['name' => 'Carla Mendes', 'cpf' => '39053344705', 'email' => 'carla@example.com', 'role' => 'professor', 'escola_id' => $central?->id],
         ];
 
         foreach ($users as $user) {
@@ -22,6 +25,7 @@ class UserSeeder extends Seeder
                 [
                     'name' => $user['name'],
                     'email' => $user['email'],
+                    'escola_id' => $user['escola_id'],
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                 ],
@@ -30,6 +34,9 @@ class UserSeeder extends Seeder
             $model->syncRoles([$user['role']]);
         }
 
-        User::factory()->count(10)->withRole('user')->create();
+        User::factory()
+            ->count(10)
+            ->withRole('professor')
+            ->create(['escola_id' => $central?->id]);
     }
 }
