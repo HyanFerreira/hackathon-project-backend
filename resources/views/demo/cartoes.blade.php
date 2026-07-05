@@ -47,7 +47,7 @@
                             @if (! empty($aluno['conquista']))
                                 <img class="conquista" src="{{ $aluno['conquista'] }}" alt="conquista">
                             @endif
-                            <div class="msg">Você é o aluno!<br>Escaneie o QR code para jogar.</div>
+                            <div class="msg">Você é o estudante!<br>Escaneie o QR code para jogar.</div>
                             <div class="qr">
                                 <img src="{{ $aluno['qr'] }}" alt="QR de acesso">
                             </div>
