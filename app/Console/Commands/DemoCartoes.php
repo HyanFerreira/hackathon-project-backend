@@ -74,44 +74,27 @@ class DemoCartoes extends Command
     }
 
     /**
-     * Logo do sistema (SVG) rasterizada em PNG base64 (fundo transparente).
+     * Logo do sistema (PNG) em base64. Usa PNG pré-renderizado para não depender
+     * de rasterização de SVG (Imagick) no servidor.
      */
     private function logoBase64(): string
     {
-        $img = new \Imagick;
-        $img->setBackgroundColor(new \ImagickPixel('transparent'));
-        $img->readImage(public_path('demo/logo.svg'));
-        $img->setImageFormat('png');
-        $img->resizeImage(520, 0, \Imagick::FILTER_LANCZOS, 1);
-
-        return 'data:image/png;base64,'.base64_encode($img->getImageBlob());
+        return 'data:image/png;base64,'.base64_encode(File::get(public_path('demo/logo.png')));
     }
 
     /**
-     * Rasteriza as conquistas (SVG pixel art) em PNG base64, uma será usada por cartão.
+     * Conquistas (PNG pixel art) em base64, uma será usada por cartão.
      *
      * @return list<string>
      */
     private function conquistasBase64(): array
     {
-        $arquivos = glob(public_path('demo/conquistas').'/ac*.svg') ?: [];
+        $arquivos = glob(public_path('demo/conquistas').'/ac*.png') ?: [];
         sort($arquivos);
 
-        $imagens = [];
-        foreach ($arquivos as $arquivo) {
-            try {
-                $img = new \Imagick;
-                $img->setBackgroundColor(new \ImagickPixel('transparent'));
-                $img->readImage($arquivo);
-                $img->setImageFormat('png');
-                $img->resizeImage(160, 160, \Imagick::FILTER_LANCZOS, 1, true);
-                $imagens[] = 'data:image/png;base64,'.base64_encode($img->getImageBlob());
-                $img->clear();
-            } catch (\Throwable $e) {
-                $this->warn("Falha ao processar {$arquivo}: {$e->getMessage()}");
-            }
-        }
-
-        return $imagens;
+        return array_values(array_map(
+            fn (string $arquivo) => 'data:image/png;base64,'.base64_encode(File::get($arquivo)),
+            $arquivos,
+        ));
     }
 }
