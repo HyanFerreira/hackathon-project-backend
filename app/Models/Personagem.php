@@ -27,7 +27,7 @@ class Personagem extends Model
      */
     public function imagem(int $nivel): string
     {
-        return "{$this->chave}_level_{$nivel}.png";
+        return "{$this->chave}_level_{$nivel}.svg";
     }
 
     /**
