@@ -42,6 +42,90 @@ class SessaoAoVivoService
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function resumoAluno(Aluno $aluno, string $periodo = 'all'): array
+    {
+        $turmaIds = $aluno->turmas()->pluck('turmas.id');
+
+        $sessoes = SessaoAoVivo::query()
+            ->whereIn('turma_id', $turmaIds)
+            ->where('status', SessaoAoVivo::STATUS_FINALIZADA)
+            ->when(
+                $periodo === '30-days',
+                fn ($query) => $query->where('finalizada_em', '>=', now()->subDays(30)),
+            )
+            ->when(
+                $periodo === 'year',
+                fn ($query) => $query->whereYear('finalizada_em', now()->year),
+            )
+            ->with(['turma', 'professor'])
+            ->withCount([
+                'questoes as questoes_total',
+                'participantes as participou' => fn ($query) => $query->where('aluno_id', $aluno->id),
+                'respostas as respostas_total' => fn ($query) => $query->where('aluno_id', $aluno->id),
+                'respostas as acertos_total' => fn ($query) => $query
+                    ->where('aluno_id', $aluno->id)
+                    ->where('correta', true),
+            ])
+            ->withSum(
+                ['respostas as pontos_total' => fn ($query) => $query->where('aluno_id', $aluno->id)],
+                'pontos_ganhos',
+            )
+            ->withSum(
+                ['respostas as xp_total' => fn ($query) => $query->where('aluno_id', $aluno->id)],
+                'xp_ganho',
+            )
+            ->latest('finalizada_em')
+            ->limit(100)
+            ->get();
+
+        $historico = $sessoes->map(function (SessaoAoVivo $sessao): array {
+            $respostas = (int) $sessao->respostas_total;
+            $acertos = (int) $sessao->acertos_total;
+
+            return [
+                'id' => $sessao->id,
+                'titulo' => $sessao->titulo,
+                'data' => $sessao->finalizada_em?->toIso8601String(),
+                'participou' => (int) $sessao->participou > 0,
+                'pontos' => (int) ($sessao->pontos_total ?? 0),
+                'xp' => (int) ($sessao->xp_total ?? 0),
+                'acertos' => $acertos,
+                'erros' => max($respostas - $acertos, 0),
+                'respostas' => $respostas,
+                'questoes_total' => (int) $sessao->questoes_total,
+                'turma' => [
+                    'id' => $sessao->turma?->id,
+                    'nome' => $sessao->turma?->nome,
+                    'ano' => $sessao->turma?->ano,
+                ],
+                'professor' => [
+                    'id' => $sessao->professor?->id,
+                    'nome' => $sessao->professor?->name,
+                ],
+            ];
+        })->values();
+
+        $participadas = $historico->where('participou', true);
+        $melhor = $participadas->sortByDesc('pontos')->first();
+
+        return [
+            'resumo' => [
+                'sessoes_concluidas' => $participadas->count(),
+                'xp_ganho' => (int) $participadas->sum('xp'),
+                'melhor_pontuacao' => (int) ($melhor['pontos'] ?? 0),
+                'melhor_sessao' => $melhor ? [
+                    'id' => $melhor['id'],
+                    'titulo' => $melhor['titulo'],
+                    'data' => $melhor['data'],
+                ] : null,
+            ],
+            'historico' => $historico,
+        ];
+    }
+
+    /**
      * @param  array<string, mixed>  $dados
      */
     public function criar(User $professor, array $dados): SessaoAoVivo

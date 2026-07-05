@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('ranking/escola', [AlunoRankingController::class, 'escola'])->name('aluno.ranking.escola');
         Route::get('conquistas', [AlunoConquistaController::class, 'index'])->name('aluno.conquistas');
         Route::get('missoes', [AlunoMissaoController::class, 'index'])->name('aluno.missoes');
+        Route::get('sessoes-ao-vivo/resumo', [AlunoSessaoAoVivoController::class, 'resumo'])->name('aluno.sessoes-ao-vivo.resumo');
         Route::get('sessoes-ao-vivo/ativa', [AlunoSessaoAoVivoController::class, 'ativa'])->name('aluno.sessoes-ao-vivo.ativa');
         Route::post('sessoes-ao-vivo/{sessao}/entrar', [AlunoSessaoAoVivoController::class, 'entrar'])->name('aluno.sessoes-ao-vivo.entrar');
         Route::get('sessoes-ao-vivo/{sessao}/atual', [AlunoSessaoAoVivoController::class, 'atual'])->name('aluno.sessoes-ao-vivo.atual');

@@ -13,6 +13,17 @@ class SessaoAoVivoController extends Controller
 {
     public function __construct(private readonly SessaoAoVivoService $service) {}
 
+    public function resumo(Request $request): JsonResponse
+    {
+        $dados = $request->validate([
+            'periodo' => ['sometimes', 'string', 'in:all,30-days,year'],
+        ]);
+
+        return response()->json(
+            $this->service->resumoAluno($request->user(), $dados['periodo'] ?? 'all'),
+        );
+    }
+
     public function ativa(Request $request): JsonResponse
     {
         return response()->json([
