@@ -43,7 +43,12 @@ class RankingService
             ->orderByDesc(DB::raw('COALESCE(perfis_alunos.xp, 0)'))
             ->orderBy('alunos.nome')
             ->select('alunos.*')
-            ->with('perfil')
+            ->with([
+                'perfil',
+                'personagens' => fn ($query) => $query
+                    ->where('equipado', true)
+                    ->with('personagem'),
+            ])
             ->get();
 
         return $alunos->each(fn (Aluno $aluno, int $indice) => $aluno->posicao = $indice + 1);

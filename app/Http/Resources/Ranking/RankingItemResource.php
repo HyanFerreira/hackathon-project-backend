@@ -12,6 +12,9 @@ class RankingItemResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $alunoPersonagem = $this->personagens->first();
+        $personagem = $alunoPersonagem?->personagem;
+
         return [
             'posicao' => $this->posicao,
             'aluno' => [
@@ -23,6 +26,13 @@ class RankingItemResource extends JsonResource
             'pontos' => $this->perfil?->pontuacao_total ?? 0,
             'xp' => $this->perfil?->xp ?? 0,
             'nivel' => $this->perfil?->nivel ?? 1,
+            'personagem' => $personagem ? [
+                'chave' => $personagem->chave,
+                'nome' => $personagem->nome,
+                'nivel' => $alunoPersonagem->nivel,
+                'imagem' => $personagem->imagem($alunoPersonagem->nivel),
+                'avatar' => $personagem->avatar,
+            ] : null,
         ];
     }
 }
