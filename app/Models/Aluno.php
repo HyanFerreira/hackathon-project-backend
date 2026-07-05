@@ -67,6 +67,22 @@ class Aluno extends Authenticatable
     }
 
     /**
+     * @return HasMany<SessaoAoVivoParticipante, $this>
+     */
+    public function participacoesSessoesAoVivo(): HasMany
+    {
+        return $this->hasMany(SessaoAoVivoParticipante::class);
+    }
+
+    /**
+     * @return HasMany<SessaoAoVivoResposta, $this>
+     */
+    public function respostasSessoesAoVivo(): HasMany
+    {
+        return $this->hasMany(SessaoAoVivoResposta::class);
+    }
+
+    /**
      * Conquistas já desbloqueadas pelo aluno.
      *
      * @return BelongsToMany<Conquista, $this>

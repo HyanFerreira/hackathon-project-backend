@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Requests\SessaoAoVivo;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class ResponderSessaoAoVivoRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'alternativa_id' => ['required', 'integer', Rule::exists('questao_alternativas', 'id')],
+        ];
+    }
+}

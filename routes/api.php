@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Aluno\PersonagemController as AlunoPersonagemContro
 use App\Http\Controllers\Api\Aluno\QuestaoController as AlunoQuestaoController;
 use App\Http\Controllers\Api\Aluno\RankingController as AlunoRankingController;
 use App\Http\Controllers\Api\Aluno\RespostaController as AlunoRespostaController;
+use App\Http\Controllers\Api\Aluno\SessaoAoVivoController as AlunoSessaoAoVivoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Gestor\AlunoController;
 use App\Http\Controllers\Api\Gestor\DashboardController as GestorDashboardController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Api\Gestor\VinculoController;
 use App\Http\Controllers\Api\Professor\DashboardController as ProfessorDashboardController;
 use App\Http\Controllers\Api\Professor\QuestaoController;
 use App\Http\Controllers\Api\Professor\RankingController as ProfessorRankingController;
+use App\Http\Controllers\Api\Professor\SessaoAoVivoController as ProfessorSessaoAoVivoController;
 use App\Http\Controllers\Api\Referencia\DisciplinaController;
 use App\Http\Controllers\Api\Referencia\HabilidadeController;
 use App\Http\Controllers\Api\Role\RoleController;
@@ -54,6 +56,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('ranking/escola', [AlunoRankingController::class, 'escola'])->name('aluno.ranking.escola');
         Route::get('conquistas', [AlunoConquistaController::class, 'index'])->name('aluno.conquistas');
         Route::get('missoes', [AlunoMissaoController::class, 'index'])->name('aluno.missoes');
+        Route::get('sessoes-ao-vivo/ativa', [AlunoSessaoAoVivoController::class, 'ativa'])->name('aluno.sessoes-ao-vivo.ativa');
+        Route::post('sessoes-ao-vivo/{sessao}/entrar', [AlunoSessaoAoVivoController::class, 'entrar'])->name('aluno.sessoes-ao-vivo.entrar');
+        Route::get('sessoes-ao-vivo/{sessao}/atual', [AlunoSessaoAoVivoController::class, 'atual'])->name('aluno.sessoes-ao-vivo.atual');
+        Route::post('sessoes-ao-vivo/{sessao}/responder', [AlunoSessaoAoVivoController::class, 'responder'])->name('aluno.sessoes-ao-vivo.responder');
 
         // Desafios entre colegas (ao vivo, via WebSocket)
         Route::get('colegas', [AlunoColegaController::class, 'index'])->name('aluno.colegas');
@@ -120,6 +126,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:professor,sanctum')->prefix('professor')->group(function () {
         Route::get('dashboard', [ProfessorDashboardController::class, 'index'])->name('professor.dashboard');
         Route::get('ranking/turmas/{turma}', [ProfessorRankingController::class, 'turma'])->name('professor.ranking.turma');
+        Route::get('sessoes-ao-vivo', [ProfessorSessaoAoVivoController::class, 'index'])->name('professor.sessoes-ao-vivo.index');
+        Route::post('sessoes-ao-vivo', [ProfessorSessaoAoVivoController::class, 'store'])->name('professor.sessoes-ao-vivo.store');
+        Route::get('sessoes-ao-vivo/{sessao}', [ProfessorSessaoAoVivoController::class, 'show'])->name('professor.sessoes-ao-vivo.show');
+        Route::post('sessoes-ao-vivo/{sessao}/iniciar', [ProfessorSessaoAoVivoController::class, 'iniciar'])->name('professor.sessoes-ao-vivo.iniciar');
+        Route::post('sessoes-ao-vivo/{sessao}/pausar', [ProfessorSessaoAoVivoController::class, 'pausar'])->name('professor.sessoes-ao-vivo.pausar');
+        Route::post('sessoes-ao-vivo/{sessao}/retomar', [ProfessorSessaoAoVivoController::class, 'retomar'])->name('professor.sessoes-ao-vivo.retomar');
+        Route::post('sessoes-ao-vivo/{sessao}/heartbeat', [ProfessorSessaoAoVivoController::class, 'heartbeat'])->name('professor.sessoes-ao-vivo.heartbeat');
+        Route::post('sessoes-ao-vivo/{sessao}/encerrar', [ProfessorSessaoAoVivoController::class, 'encerrar'])->name('professor.sessoes-ao-vivo.encerrar');
+        Route::post('sessoes-ao-vivo/{sessao}/proxima', [ProfessorSessaoAoVivoController::class, 'proxima'])->name('professor.sessoes-ao-vivo.proxima');
+        Route::post('sessoes-ao-vivo/{sessao}/questoes/{sessaoQuestao}/enviar', [ProfessorSessaoAoVivoController::class, 'enviarQuestao'])->name('professor.sessoes-ao-vivo.questoes.enviar');
+        Route::get('sessoes-ao-vivo/{sessao}/desempenho', [ProfessorSessaoAoVivoController::class, 'desempenho'])->name('professor.sessoes-ao-vivo.desempenho');
     });
 
     /*

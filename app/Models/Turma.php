@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Turma extends Model
 {
@@ -50,5 +51,13 @@ class Turma extends Model
     {
         return $this->belongsToMany(Aluno::class, 'aluno_turma', 'turma_id', 'aluno_id')
             ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<SessaoAoVivo, $this>
+     */
+    public function sessoesAoVivo(): HasMany
+    {
+        return $this->hasMany(SessaoAoVivo::class);
     }
 }

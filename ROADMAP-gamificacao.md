@@ -297,6 +297,46 @@ O backend (Fase 1 + 2) está pronto. Falta o front consumir:
 
 ---
 
+### Sessão ao vivo professor↔turma (WebSocket) — backend ✅
+
+- **Modelo:** sessão em português (`sessoes_ao_vivo`, `sessao_ao_vivo_questoes`, `sessao_ao_vivo_participantes`, `sessao_ao_vivo_respostas`). Uma sessão pertence a **um professor** e **uma turma**; o professor só cria sessão para turmas em que leciona e com questões ativas do próprio banco.
+- **Uma turma por vez:** o backend bloqueia múltiplas sessões ativas do mesmo professor e também bloqueia outra sessão ativa para a mesma turma.
+- **Status:** `aguardando` → `em_andamento` ↔ `pausada` → `finalizada` (`cancelada` reservado). Professor pode iniciar, pausar, retomar, encerrar e enviar questões uma por uma.
+- **Professor saiu da tela:** o frontend deve chamar `POST /professor/sessoes-ao-vivo/{sessao}/heartbeat` enquanto a tela estiver aberta e `POST .../encerrar` ao sair. Se o heartbeat ficar velho por `SessaoAoVivo::HEARTBEAT_TTL_SEGUNDOS` (45s), o backend encerra a sessão com `motivo_encerramento = professor_ausente` na próxima interação/listagem.
+- **Pontuação da sessão:** acerto soma os pontos da questão e +10 XP; erro soma 0 pontos e +2 XP. Esses pontos também entram no perfil (`pontos` e `pontuacao_total`), mas o ranking exibido na sessão é calculado sobre `sessao_ao_vivo_respostas`.
+- **Professor acompanha em tempo real:** payloads trazem `desempenho` com totais, respostas/corretas da questão atual e `ranking` da turma inteira (inclui alunos que ainda não responderam com 0 pontos).
+- **Canais privados:** `turma.{id}` (alunos da turma + professores vinculados) e `professor.{id}` (painel do professor). Eventos com `broadcastAs`:
+  - `.sessao.atualizada` → status/entrada/pausa/retomada.
+  - `.sessao.questao` → questão enviada, sem gabarito.
+  - `.sessao.resposta` → resposta recebida + desempenho/ranking atualizado.
+  - `.sessao.encerrada` → resultado final/ranking.
+- **Endpoints do professor:**
+
+```txt
+GET  /api/professor/sessoes-ao-vivo
+POST /api/professor/sessoes-ao-vivo                         (turma_id, titulo?, questoes[])
+GET  /api/professor/sessoes-ao-vivo/{sessao}
+POST /api/professor/sessoes-ao-vivo/{sessao}/iniciar
+POST /api/professor/sessoes-ao-vivo/{sessao}/pausar
+POST /api/professor/sessoes-ao-vivo/{sessao}/retomar
+POST /api/professor/sessoes-ao-vivo/{sessao}/heartbeat
+POST /api/professor/sessoes-ao-vivo/{sessao}/encerrar
+POST /api/professor/sessoes-ao-vivo/{sessao}/proxima
+POST /api/professor/sessoes-ao-vivo/{sessao}/questoes/{sessaoQuestao}/enviar
+GET  /api/professor/sessoes-ao-vivo/{sessao}/desempenho
+```
+
+- **Endpoints do aluno:**
+
+```txt
+GET  /api/aluno/sessoes-ao-vivo/ativa
+POST /api/aluno/sessoes-ao-vivo/{sessao}/entrar
+GET  /api/aluno/sessoes-ao-vivo/{sessao}/atual
+POST /api/aluno/sessoes-ao-vivo/{sessao}/responder           (alternativa_id)
+```
+
+---
+
 ### Convenção de nomes
 
 - **Domínio novo em português** para tabelas, colunas e models (`alunos`, `escolas`, `turmas`, `disciplinas`, `questoes`, etc.).
