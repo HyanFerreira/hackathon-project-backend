@@ -23,6 +23,7 @@ class PersonagemLojaResource extends JsonResource
             'preco' => $personagem->preco,
             'nivel_maximo' => $personagem->nivel_maximo,
             'imagem' => $personagem->imagem(1),
+            'avatar' => $personagem->avatar,
             'ja_possui' => $this->resource['ja_possui'],
         ];
     }

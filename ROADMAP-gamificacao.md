@@ -233,6 +233,7 @@ GET /api/aluno/ranking/escola
 ### Loja e personagens que evoluem
 
 - **`personagens`** (catálogo global, seed via `PersonagemSeeder`): **11 personagens**. Um inicial gratuito (`lumi`, tier `free`) + 10 (comum → lendário): `grunt_chibi`, `pip_chibi_v2`, `leafy`, `leo`, `luna`, `nox`, `drako`, `kitsune`, `fenro`, `elyra`. Campos: `chave`, `nome`, `tier`, `preco`, `nivel_maximo` (3). As **imagens ficam no frontend** em `public/personagens/{chave}_level_{N}.svg` (SVG); o backend guarda `chave` + nível e expõe `imagem` = nome do arquivo.
+- **Avatar (imagem de perfil/cabeça):** coluna `avatar` em `personagens` guarda o nome do arquivo da cabeça do personagem, padrão **`{chave}_perfil.svg`** (ex.: `lumi_perfil.svg`). Exposta na loja, no inventário e no feedback de resposta. As imagens ficam no front (`public/personagens/`).
 - **Personagem inicial (Lumi):** todo aluno **começa com o `lumi` equipado** — garantido no login do aluno (`PersonagemService::garantirInicial`). Ele **aparece na loja** marcado como `free`/`ja_possui`, mas **não pode ser comprado** (compra bloqueada para o tier `free`).
 - **`aluno_personagem`**: `nivel`, `questoes_respondidas` (com ele equipado), `equipado`, `comprado_em` (unique aluno+personagem).
 - **Regra:** o aluno **compra** um personagem gastando pontos e o **equipa** (só 1 equipado). A cada questão respondida com ele equipado, `questoes_respondidas` sobe e o personagem **evolui de nível** (nível 2 em 10 questões, nível 3 em 30). No feedback de `responder` vem `personagem` com `subiu_nivel`.

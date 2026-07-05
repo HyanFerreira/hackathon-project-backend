@@ -86,6 +86,7 @@ class QuestaoController extends Controller
             'nivel' => $dados['nivel'],
             'subiu_nivel' => $dados['subiu_nivel'],
             'imagem' => $personagem->imagem($dados['nivel']),
+            'avatar' => $personagem->avatar,
         ];
     }
 }

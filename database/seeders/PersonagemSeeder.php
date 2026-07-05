@@ -41,7 +41,12 @@ class PersonagemSeeder extends Seeder
         foreach (self::PERSONAGENS as $personagem) {
             Personagem::query()->updateOrCreate(
                 ['chave' => $personagem['chave']],
-                [...$personagem, 'nivel_maximo' => 3, 'status' => 'ativo'],
+                [
+                    ...$personagem,
+                    'avatar' => $personagem['chave'].'_perfil.svg',
+                    'nivel_maximo' => 3,
+                    'status' => 'ativo',
+                ],
             );
         }
     }

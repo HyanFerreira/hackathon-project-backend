@@ -14,6 +14,7 @@ class Personagem extends Model
      */
     protected $fillable = [
         'chave',
+        'avatar',
         'nome',
         'descricao',
         'tier',

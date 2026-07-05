@@ -26,6 +26,7 @@ class AlunoPersonagemResource extends JsonResource
             'proximo_nivel_em' => $this->resource['proximo_nivel_em'],
             'equipado' => $alunoPersonagem->equipado,
             'imagem' => $personagem->imagem($alunoPersonagem->nivel),
+            'avatar' => $personagem->avatar,
         ];
     }
 }
