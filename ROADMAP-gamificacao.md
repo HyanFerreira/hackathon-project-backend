@@ -338,6 +338,36 @@ POST /api/aluno/sessoes-ao-vivo/{sessao}/responder           (alternativa_id)
 
 ---
 
+### Dashboard avançado do professor (desempenho)
+
+`GET /api/professor/desempenho` — visão do desempenho dos alunos das turmas do professor (sobre `respostas_alunos`):
+
+- **resumo**: turmas, alunos, alunos ativos, respostas, acertos, `taxa_acerto` (%), questões criadas.
+- **habilidades_dificeis**: habilidades da BNCC com **menor taxa de acerto** (código, descrição, disciplina, respostas, acertos, taxa) — mostra **onde os alunos vão pior**.
+- **disciplinas**: taxa de acerto por disciplina (pior → melhor).
+- **questoes_mais_erradas**: questões com menor taxa de acerto.
+- **alunos_com_dificuldade**: alunos com menor taxa de acerto.
+- **por_turma**: alunos, respostas e taxa de acerto por turma.
+
+Serviço: `App\Services\Professor\DesempenhoService` (agregações via query builder). Escopo = alunos das turmas do professor.
+
+**Dados fake para a demo:** `DesempenhoFakeSeeder` popula **4 turmas** (6º–9º Ano A) da escola principal com ~12 alunos cada e respostas realistas (Matemática mais difícil, cada turma com um nível diferente) e atualiza os perfis — enche os gráficos de desempenho, a comparação entre turmas e o ranking. Já incluído no `DatabaseSeeder` (roda no `migrate:fresh --seed`); também roda avulso com `php artisan db:seed --class=DesempenhoFakeSeeder`.
+
+### Dashboard avançado do gestor (desempenho da escola)
+
+`GET /api/gestor/desempenho` — visão da escola inteira (escopo = alunos da escola do gestor):
+
+- **resumo**: turmas, professores, alunos, alunos ativos, respostas, `taxa_acerto` (%).
+- **por_turma**: taxa de acerto por turma, ordenada (**melhor → pior**) — comparação entre turmas.
+- **habilidades_dificeis** / **disciplinas**: onde a escola vai pior.
+- **professores_ativos**: professores por questões criadas.
+- **top_alunos**: alunos com maior pontuação da escola.
+- **alunos_com_dificuldade**: alunos com menor taxa de acerto.
+
+Serviço: `App\Services\Gestor\DesempenhoService`.
+
+---
+
 ### Convenção de nomes
 
 - **Domínio novo em português** para tabelas, colunas e models (`alunos`, `escolas`, `turmas`, `disciplinas`, `questoes`, etc.).

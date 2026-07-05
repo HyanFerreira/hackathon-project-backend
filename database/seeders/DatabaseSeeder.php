@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             TurmaSeeder::class,
             AlunoSeeder::class,
             QuestaoSeeder::class,
+            DesempenhoFakeSeeder::class,
         ]);
     }
 }

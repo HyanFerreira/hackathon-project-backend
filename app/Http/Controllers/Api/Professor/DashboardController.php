@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Professor;
 use App\Http\Controllers\Controller;
 use App\Models\Aluno;
 use App\Models\Questao;
+use App\Services\Professor\DesempenhoService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,5 +29,14 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get(['id', 'enunciado', 'dificuldade', 'created_at']),
         ]);
+    }
+
+    /**
+     * Dashboard avançado: desempenho dos alunos do professor,
+     * com destaque para as habilidades em que vão pior.
+     */
+    public function desempenho(Request $request, DesempenhoService $service): JsonResponse
+    {
+        return response()->json($service->paraProfessor($request->user()));
     }
 }

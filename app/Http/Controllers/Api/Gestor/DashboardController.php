@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Aluno;
 use App\Models\Turma;
 use App\Models\User;
+use App\Services\Gestor\DesempenhoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,5 +24,14 @@ class DashboardController extends Controller
             'professores' => User::query()->role('professor')->where('escola_id', $escolaId)->count(),
             'alunos' => Aluno::query()->where('escola_id', $escolaId)->count(),
         ]);
+    }
+
+    /**
+     * Dashboard avançado: desempenho da escola inteira (turmas, habilidades,
+     * disciplinas, professores mais ativos e top alunos).
+     */
+    public function desempenho(Request $request, DesempenhoService $service): JsonResponse
+    {
+        return response()->json($service->paraGestor($request->user()));
     }
 }

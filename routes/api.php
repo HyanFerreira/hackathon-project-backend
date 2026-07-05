@@ -125,6 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:professor,sanctum')->prefix('professor')->group(function () {
         Route::get('dashboard', [ProfessorDashboardController::class, 'index'])->name('professor.dashboard');
+        Route::get('desempenho', [ProfessorDashboardController::class, 'desempenho'])->name('professor.desempenho');
         Route::get('ranking/turmas/{turma}', [ProfessorRankingController::class, 'turma'])->name('professor.ranking.turma');
         Route::get('sessoes-ao-vivo', [ProfessorSessaoAoVivoController::class, 'index'])->name('professor.sessoes-ao-vivo.index');
         Route::post('sessoes-ao-vivo', [ProfessorSessaoAoVivoController::class, 'store'])->name('professor.sessoes-ao-vivo.store');
@@ -167,6 +168,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::middleware('role:gestor,sanctum')->group(function () {
             Route::get('dashboard', [GestorDashboardController::class, 'index'])->name('gestor.dashboard');
+            Route::get('desempenho', [GestorDashboardController::class, 'desempenho'])->name('gestor.desempenho');
             Route::get('ranking/escola', [GestorRankingController::class, 'escola'])->name('gestor.ranking.escola');
             Route::get('ranking/turmas/{turma}', [GestorRankingController::class, 'turma'])->name('gestor.ranking.turma');
         });
