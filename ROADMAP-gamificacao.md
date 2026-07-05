@@ -230,6 +230,63 @@ GET /api/aluno/ranking/escola
 
 ---
 
+### Desafios entre alunos (ao vivo, WebSocket) — Fase 1: fundação
+
+- **WebSocket via Laravel Reverb.** Broadcasting autenticado por token Sanctum (`withBroadcasting` + `auth:sanctum`). Cada aluno assina o canal privado **`aluno.{id}`** (definido em `routes/channels.php`). Para rodar: `php artisan reverb:start` + um worker `php artisan queue:work` (eventos vão pela fila).
+- **Colegas de sala:** `GET /aluno/colegas` — alunos das turmas do aluno (menos ele), para escolher quem desafiar.
+- **Tabelas:** `desafios` (desafiante, desafiado, turma, disciplina, tipo, status, `questao_atual`, `questao_iniciada_em`, vencedor), `desafio_questoes` (sorteadas por ordem), `desafio_respostas` (resposta + `tempo_resposta_ms`).
+- **Tipos:** `amistoso` e `valendo` (pontos). **Status:** pendente → em_andamento → finalizado (+ recusado/expirado/cancelado).
+- **Eventos WebSocket:** `DesafioRecebido` (→ canal do desafiado, notificação do convite) e `DesafioAtualizado` (→ ambos os canais, mudança de status).
+- **Endpoints (Fase 1):**
+
+```txt
+GET  /api/aluno/colegas
+GET  /api/aluno/desafios
+POST /api/aluno/desafios                     (desafiado_id, disciplina_id?, tipo?, quantidade_questoes?)
+POST /api/aluno/desafios/{desafio}/aceitar   (só o desafiado; sorteia questões e inicia)
+POST /api/aluno/desafios/{desafio}/recusar   (só o desafiado)
+```
+
+### Desafios — Fase 2: partida ao vivo síncrona ✅
+
+- **Cronômetro compartilhado:** cada questão fica ativa por `Desafio::SEGUNDOS_POR_QUESTAO` (20s) a partir de `questao_iniciada_em`. Os dois recebem a questão ao mesmo tempo via broadcast `DesafioProximaQuestao`.
+- **Responder com tempo:** `POST /aluno/desafios/{d}/responder` grava a alternativa + `tempo_resposta_ms` (medido no servidor). A visão não revela o gabarito.
+- **Avanço:** quando **os dois respondem** a questão atual, avança na hora. Se o **tempo esgota**, quem não respondeu leva timeout (resolvido quando alguém consulta `GET /aluno/desafios/{d}/atual`) e a partida avança. Sem worker de tick — é event-driven e validado no servidor (com `lockForUpdate`).
+- **Vencedor:** mais acertos → menor tempo total → empate.
+- **Recompensas:**
+  - Amistoso: só XP (vencedor +15, perdedor +5, empate +8). Não mexe em pontos/energia/ranking.
+  - Valendo: consome **1 energia** de cada no aceite; vencedor +30 pontos/+30 pontuação/+20 XP, perdedor +5/+5/+5, empate +15/+15/+10. **Afeta o ranking** (pontuação). Limite diário anti-abuso (`LIMITE_VALENDO_DIA`).
+- **Eventos:** `DesafioProximaQuestao` (nova questão, aos dois) e `DesafioFinalizado` (placar + vencedor, aos dois).
+- **Endpoints (Fase 2):**
+
+```txt
+GET  /api/aluno/desafios/{desafio}/atual       (questão atual + cronômetro; resolve timeout)
+POST /api/aluno/desafios/{desafio}/responder   (alternativa_id + tempo)
+```
+
+---
+
+### Desafios — integração no frontend (a fazer)
+
+O backend (Fase 1 + 2) está pronto. Falta o front consumir:
+
+1. **WebSocket (Laravel Echo + Reverb):**
+   - Instalar `laravel-echo` + `pusher-js` e configurar o Echo com `broadcaster: 'reverb'`, usando `NEXT_PUBLIC_REVERB_*` (key/host/port/scheme — equivalentes aos `REVERB_*`/`VITE_REVERB_*` do backend).
+   - Autenticar canal privado no endpoint **`/broadcasting/auth`** enviando o header `Authorization: Bearer <token do aluno>` (a auth usa `auth:sanctum`).
+   - Assinar o canal privado **`aluno.{id}`** (id do aluno logado) e ouvir os eventos (com ponto na frente, pois usam `broadcastAs`):
+     - `.desafio.recebido` → convite chegou (mostrar notificação com aceitar/recusar).
+     - `.desafio.atualizado` → status mudou (ex.: recusado).
+     - `.desafio.questao` → nova questão da partida (renderizar + iniciar cronômetro por `expira_em`).
+     - `.desafio.finalizado` → resultado (placar + `vencedor_id`).
+2. **Telas:**
+   - **Colegas** (`GET /aluno/colegas`) → escolher quem desafiar; formulário (disciplina opcional, tipo amistoso/valendo, nº de questões) → `POST /aluno/desafios`.
+   - **Convite recebido** (via `.desafio.recebido`) → aceitar (`POST .../aceitar`) / recusar (`POST .../recusar`).
+   - **Partida ao vivo** → ao receber `.desafio.questao` (ou `GET .../atual`), mostrar a questão + **cronômetro** (de `iniciada_em` até `expira_em`); ao responder → `POST .../responder`; quando o timer zerar, chamar `GET .../atual` para forçar o avanço; mostrar "aguardando oponente" via `oponente_respondeu`.
+   - **Resultado** (via `.desafio.finalizado` ou `GET .../atual` finalizado) → placar dos dois + vencedor.
+3. **Infra da demo:** rodar `php artisan reverb:start` e `php artisan queue:work` (os eventos vão pela fila).
+
+---
+
 ### Convenção de nomes
 
 - **Domínio novo em português** para tabelas, colunas e models (`alunos`, `escolas`, `turmas`, `disciplinas`, `questoes`, etc.).

@@ -4,8 +4,10 @@ use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardControll
 use App\Http\Controllers\Api\Admin\EscolaController;
 use App\Http\Controllers\Api\Admin\GestorController;
 use App\Http\Controllers\Api\Admin\ImpersonateController;
+use App\Http\Controllers\Api\Aluno\ColegaController as AlunoColegaController;
 use App\Http\Controllers\Api\Aluno\ConquistaController as AlunoConquistaController;
 use App\Http\Controllers\Api\Aluno\DashboardController as AlunoDashboardController;
+use App\Http\Controllers\Api\Aluno\DesafioController as AlunoDesafioController;
 use App\Http\Controllers\Api\Aluno\MissaoController as AlunoMissaoController;
 use App\Http\Controllers\Api\Aluno\PerfilController as AlunoPerfilController;
 use App\Http\Controllers\Api\Aluno\PersonagemController as AlunoPersonagemController;
@@ -52,6 +54,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('ranking/escola', [AlunoRankingController::class, 'escola'])->name('aluno.ranking.escola');
         Route::get('conquistas', [AlunoConquistaController::class, 'index'])->name('aluno.conquistas');
         Route::get('missoes', [AlunoMissaoController::class, 'index'])->name('aluno.missoes');
+
+        // Desafios entre colegas (ao vivo, via WebSocket)
+        Route::get('colegas', [AlunoColegaController::class, 'index'])->name('aluno.colegas');
+        Route::get('desafios', [AlunoDesafioController::class, 'index'])->name('aluno.desafios.index');
+        Route::post('desafios', [AlunoDesafioController::class, 'store'])->name('aluno.desafios.store');
+        Route::post('desafios/{desafio}/aceitar', [AlunoDesafioController::class, 'aceitar'])->name('aluno.desafios.aceitar');
+        Route::post('desafios/{desafio}/recusar', [AlunoDesafioController::class, 'recusar'])->name('aluno.desafios.recusar');
+        Route::get('desafios/{desafio}/atual', [AlunoDesafioController::class, 'atual'])->name('aluno.desafios.atual');
+        Route::post('desafios/{desafio}/responder', [AlunoDesafioController::class, 'responder'])->name('aluno.desafios.responder');
 
         Route::get('loja', [AlunoPersonagemController::class, 'loja'])->name('aluno.loja');
         Route::post('loja/{personagem}/comprar', [AlunoPersonagemController::class, 'comprar'])->name('aluno.loja.comprar');
