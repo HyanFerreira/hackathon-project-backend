@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AlunoLoginRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\Aluno\AlunoResource;
+use App\Http\Resources\Aluno\PerfilAlunoResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Aluno;
 use App\Models\User;
+use App\Services\Aluno\LoginStreakService;
 use App\Services\Personagem\PersonagemService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -70,12 +72,15 @@ class AuthController extends Controller
 
         // Todo aluno começa com o personagem inicial gratuito (Lumi) equipado.
         app(PersonagemService::class)->garantirInicial($aluno);
+        $streak = app(LoginStreakService::class)->registrarEntrada($aluno);
 
         $token = $aluno->createToken('aluno')->plainTextToken;
 
         return response()->json([
             'aluno' => new AlunoResource($aluno),
             'token' => $token,
+            'perfil' => ['data' => new PerfilAlunoResource($streak['perfil'])],
+            'streak' => $streak['streak'],
         ]);
     }
 

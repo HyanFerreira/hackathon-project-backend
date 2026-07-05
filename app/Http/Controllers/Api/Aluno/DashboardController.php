@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Aluno;
 
 use App\Http\Controllers\Controller;
+use App\Services\Aluno\LoginStreakService;
 use App\Services\Aluno\PerfilAlunoService;
 use App\Services\Ranking\RankingService;
 use Illuminate\Http\JsonResponse;
@@ -41,6 +42,12 @@ class DashboardController extends Controller
                 'nivel' => $perfil->nivel,
                 'energia' => $perfil->energia,
                 'energia_maxima' => $perfil->energia_maxima,
+                'streak' => [
+                    'dias_seguidos' => $perfil->dias_seguidos_login,
+                    'maior_dias_seguidos' => $perfil->maior_dias_seguidos_login,
+                    'ultimo_login_em' => $perfil->ultimo_login_em?->toIso8601String(),
+                    'proximo_bonus_em_dias' => LoginStreakService::proximoBonusEm((int) $perfil->dias_seguidos_login),
+                ],
             ],
             'posicao_turma' => $posicaoTurma,
         ]);

@@ -21,12 +21,16 @@ class PerfilAluno extends Model
         'energia',
         'energia_maxima',
         'energia_atualizada_em',
+        'dias_seguidos_login',
+        'maior_dias_seguidos_login',
+        'ultimo_login_em',
     ];
 
     protected function casts(): array
     {
         return [
             'energia_atualizada_em' => 'datetime',
+            'ultimo_login_em' => 'datetime',
         ];
     }
 

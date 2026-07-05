@@ -143,6 +143,15 @@ Permissão adicional: `gerenciar questoes` → papel **professor**.
 
 **Shape do `responder`:** o campo `perfil` da resposta vem **envolto em `data`** (`perfil.data`), igual ao `GET /aluno/perfil`, para casar com o frontend. O feedback também traz `conquistas_desbloqueadas`, `missoes_concluidas` e `personagem` (com `subiu_nivel`).
 
+**Frequência de entrada (streak):**
+
+- O perfil do aluno registra `dias_seguidos_login`, `maior_dias_seguidos_login` e `ultimo_login_em`.
+- A sequência é atualizada no login do aluno e também no primeiro acesso às rotas `/api/aluno/*`, cobrindo o caso em que o frontend reaproveita um token salvo.
+- Só o primeiro acesso do dia avança a sequência e gera recompensa; múltiplos acessos no mesmo dia não duplicam pontos.
+- Se o aluno entra no dia seguinte ao último acesso, soma +1 dia; se pula um ou mais dias, a sequência reinicia em 1.
+- Recompensa: **+5 pontos gastáveis** no primeiro acesso do dia, com **+20 pontos extras** a cada 7 dias consecutivos (25 pontos no marco semanal). Essa recompensa **não altera `pontuacao_total`**, para não misturar frequência com ranking de desempenho.
+- O backend expõe `streak` no `perfil` e também no retorno de `POST /api/login/aluno` para o frontend exibir a recompensa imediatamente.
+
 Endpoints (aluno):
 
 ```txt

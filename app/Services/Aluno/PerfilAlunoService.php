@@ -24,6 +24,9 @@ class PerfilAlunoService
             'energia' => 10,
             'energia_maxima' => 10,
             'energia_atualizada_em' => now(),
+            'dias_seguidos_login' => 0,
+            'maior_dias_seguidos_login' => 0,
+            'ultimo_login_em' => null,
         ]);
 
         return $this->regenerarEnergia($perfil);
