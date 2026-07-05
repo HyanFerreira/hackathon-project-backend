@@ -78,6 +78,7 @@ class SessaoAoVivoPayload
                 'nome' => $sessao->professor?->name,
             ],
             'questoes_total' => $sessao->questoes->count(),
+            'questao_ids' => $sessao->questoes->pluck('questao_id')->values()->all(),
             'iniciada_em' => $sessao->iniciada_em?->toIso8601String(),
             'pausada_em' => $sessao->pausada_em?->toIso8601String(),
             'finalizada_em' => $sessao->finalizada_em?->toIso8601String(),
@@ -164,6 +165,7 @@ class SessaoAoVivoPayload
         $questaoAtual = $sessao->questaoAtual()->first();
         $respondidasAtual = 0;
         $corretasAtual = 0;
+        $participantes = $sessao->participantes()->count();
 
         if ($questaoAtual instanceof SessaoAoVivoQuestao) {
             $respondidasAtual = $sessao->respostas()
@@ -177,12 +179,12 @@ class SessaoAoVivoPayload
 
         return [
             'alunos_total' => $sessao->turma->alunos->count(),
-            'participantes' => $sessao->participantes()->count(),
+            'participantes' => $participantes,
             'respostas_total' => $sessao->respostas()->count(),
             'questao_atual' => [
                 'respondidas' => $respondidasAtual,
                 'corretas' => $corretasAtual,
-                'pendentes' => max(0, $sessao->turma->alunos->count() - $respondidasAtual),
+                'pendentes' => max(0, $participantes - $respondidasAtual),
             ],
             'ranking' => $ranking->all(),
         ];

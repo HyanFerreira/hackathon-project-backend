@@ -3,15 +3,27 @@
 namespace App\Http\Controllers\Api\Professor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Turma\TurmaResource;
 use App\Models\Aluno;
 use App\Models\Questao;
 use App\Services\Professor\DesempenhoService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class DashboardController extends Controller
 {
+    public function turmas(Request $request): AnonymousResourceCollection
+    {
+        return TurmaResource::collection(
+            $request->user()
+                ->turmas()
+                ->orderBy('nome')
+                ->get()
+        );
+    }
+
     public function index(Request $request): JsonResponse
     {
         $professor = $request->user();

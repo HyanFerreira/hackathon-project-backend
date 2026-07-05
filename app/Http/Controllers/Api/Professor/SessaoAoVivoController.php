@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\Professor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SessaoAoVivo\CriarSessaoAoVivoRequest;
 use App\Http\Resources\SessaoAoVivo\SessaoAoVivoResource;
+use App\Models\Questao;
 use App\Models\SessaoAoVivo;
-use App\Models\SessaoAoVivoQuestao;
 use App\Services\SessaoAoVivo\SessaoAoVivoPayload;
 use App\Services\SessaoAoVivo\SessaoAoVivoService;
 use Illuminate\Http\JsonResponse;
@@ -73,11 +73,13 @@ class SessaoAoVivoController extends Controller
         return response()->json(SessaoAoVivoPayload::estadoProfessor($this->service->encerrar($sessao)));
     }
 
-    public function enviarQuestao(Request $request, SessaoAoVivo $sessao, SessaoAoVivoQuestao $sessaoQuestao): JsonResponse
+    public function enviarQuestao(Request $request, SessaoAoVivo $sessao, Questao $questao): JsonResponse
     {
         $this->garantirProfessor($request, $sessao);
 
-        return response()->json(SessaoAoVivoPayload::estadoProfessor($this->service->enviarQuestao($sessao, $sessaoQuestao)));
+        return response()->json(SessaoAoVivoPayload::estadoProfessor(
+            $this->service->selecionarEEnviarQuestao($sessao, $questao, $request->user())
+        ));
     }
 
     public function proxima(Request $request, SessaoAoVivo $sessao): JsonResponse

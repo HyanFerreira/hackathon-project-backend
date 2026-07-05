@@ -47,11 +47,10 @@ class SessaoAoVivoService
     public function criar(User $professor, array $dados): SessaoAoVivo
     {
         $turma = $this->turmaDoProfessor($professor, (int) $dados['turma_id']);
-        $questoes = $this->questoesDoProfessor($professor, $dados['questoes']);
 
         $this->garantirSemSessaoAtiva($professor, $turma);
 
-        return DB::transaction(function () use ($professor, $turma, $questoes, $dados) {
+        return DB::transaction(function () use ($professor, $turma, $dados) {
             $sessao = SessaoAoVivo::query()->create([
                 'escola_id' => $turma->escola_id,
                 'turma_id' => $turma->id,
@@ -61,18 +60,36 @@ class SessaoAoVivoService
                 'professor_online_em' => now(),
             ]);
 
-            $ordem = 1;
-            foreach ($questoes as $questao) {
-                $sessao->questoes()->create([
-                    'questao_id' => $questao->id,
-                    'ordem' => $ordem++,
-                ]);
-            }
-
             SessaoAoVivoAtualizada::dispatch($sessao);
 
             return $sessao->load(['turma', 'professor', 'questoes.questao']);
         });
+    }
+
+    public function selecionarEEnviarQuestao(
+        SessaoAoVivo $sessao,
+        Questao $questao,
+        User $professor
+    ): SessaoAoVivo {
+        $this->resolverProfessorAusente($sessao);
+        $this->garantirStatus($sessao, [SessaoAoVivo::STATUS_EM_ANDAMENTO]);
+
+        $questao = $this->questoesDoProfessor($professor, [$questao->id])->first();
+
+        if ($sessao->questoes()->where('questao_id', $questao->id)->exists()) {
+            throw ValidationException::withMessages([
+                'questao' => ['Esta questão já foi utilizada nesta sessão.'],
+            ]);
+        }
+
+        $sessaoQuestao = DB::transaction(function () use ($sessao, $questao) {
+            return $sessao->questoes()->create([
+                'questao_id' => $questao->id,
+                'ordem' => ((int) $sessao->questoes()->max('ordem')) + 1,
+            ]);
+        });
+
+        return $this->enviarQuestao($sessao, $sessaoQuestao);
     }
 
     public function iniciar(SessaoAoVivo $sessao): SessaoAoVivo

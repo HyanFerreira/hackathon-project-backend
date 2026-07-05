@@ -19,9 +19,7 @@ class CriarSessaoAoVivoRequest extends FormRequest
     {
         return [
             'turma_id' => ['required', 'integer', Rule::exists('turmas', 'id')],
-            'titulo' => ['nullable', 'string', 'max:255'],
-            'questoes' => ['required', 'array', 'min:1', 'max:50'],
-            'questoes.*' => ['integer', 'distinct', Rule::exists('questoes', 'id')],
+            'titulo' => ['required', 'string', 'max:255'],
         ];
     }
 }

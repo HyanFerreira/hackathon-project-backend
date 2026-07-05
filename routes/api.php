@@ -126,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:professor,sanctum')->prefix('professor')->group(function () {
         Route::get('dashboard', [ProfessorDashboardController::class, 'index'])->name('professor.dashboard');
         Route::get('desempenho', [ProfessorDashboardController::class, 'desempenho'])->name('professor.desempenho');
+        Route::get('turmas', [ProfessorDashboardController::class, 'turmas'])->name('professor.turmas.index');
         Route::get('ranking/turmas/{turma}', [ProfessorRankingController::class, 'turma'])->name('professor.ranking.turma');
         Route::get('sessoes-ao-vivo', [ProfessorSessaoAoVivoController::class, 'index'])->name('professor.sessoes-ao-vivo.index');
         Route::post('sessoes-ao-vivo', [ProfessorSessaoAoVivoController::class, 'store'])->name('professor.sessoes-ao-vivo.store');
@@ -136,7 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('sessoes-ao-vivo/{sessao}/heartbeat', [ProfessorSessaoAoVivoController::class, 'heartbeat'])->name('professor.sessoes-ao-vivo.heartbeat');
         Route::post('sessoes-ao-vivo/{sessao}/encerrar', [ProfessorSessaoAoVivoController::class, 'encerrar'])->name('professor.sessoes-ao-vivo.encerrar');
         Route::post('sessoes-ao-vivo/{sessao}/proxima', [ProfessorSessaoAoVivoController::class, 'proxima'])->name('professor.sessoes-ao-vivo.proxima');
-        Route::post('sessoes-ao-vivo/{sessao}/questoes/{sessaoQuestao}/enviar', [ProfessorSessaoAoVivoController::class, 'enviarQuestao'])->name('professor.sessoes-ao-vivo.questoes.enviar');
+        Route::post('sessoes-ao-vivo/{sessao}/questoes/{questao}/enviar', [ProfessorSessaoAoVivoController::class, 'enviarQuestao'])->name('professor.sessoes-ao-vivo.questoes.enviar');
         Route::get('sessoes-ao-vivo/{sessao}/desempenho', [ProfessorSessaoAoVivoController::class, 'desempenho'])->name('professor.sessoes-ao-vivo.desempenho');
     });
 
