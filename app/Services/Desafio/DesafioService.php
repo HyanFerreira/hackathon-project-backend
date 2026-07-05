@@ -45,7 +45,7 @@ class DesafioService
 
         $turmaId = $this->turmaEmComum($desafiante, $desafiado);
 
-        if (! $turmaId) {
+        if (! $turmaId && (int) $desafiado->escola_id !== (int) $desafiante->escola_id) {
             throw ValidationException::withMessages([
                 'desafiado_id' => ['Você só pode desafiar colegas da sua turma.'],
             ]);

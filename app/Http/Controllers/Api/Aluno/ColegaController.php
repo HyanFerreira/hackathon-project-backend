@@ -19,11 +19,21 @@ class ColegaController extends Controller
         $aluno = $request->user();
         $turmaIds = $aluno->turmas()->pluck('turmas.id');
 
-        $colegas = Aluno::query()
-            ->whereKeyNot($aluno->id)
-            ->whereHas('turmas', fn (Builder $q) => $q->whereIn('turmas.id', $turmaIds))
-            ->orderBy('nome')
-            ->get();
+        $colegasQuery = Aluno::query()->whereKeyNot($aluno->id);
+
+        if ($turmaIds->isNotEmpty()) {
+            $colegasQuery->whereHas('turmas', fn (Builder $q) => $q->whereIn('turmas.id', $turmaIds));
+        }
+
+        $colegas = $colegasQuery->orderBy('nome')->get();
+
+        if ($colegas->isEmpty()) {
+            $colegas = Aluno::query()
+                ->where('escola_id', $aluno->escola_id)
+                ->whereKeyNot($aluno->id)
+                ->orderBy('nome')
+                ->get();
+        }
 
         return AlunoResource::collection($colegas);
     }
