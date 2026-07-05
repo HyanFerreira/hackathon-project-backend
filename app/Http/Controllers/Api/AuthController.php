@@ -11,6 +11,7 @@ use App\Http\Resources\User\UserResource;
 use App\Models\Aluno;
 use App\Models\User;
 use App\Services\Aluno\LoginStreakService;
+use App\Services\Conquista\ConquistaService;
 use App\Services\Personagem\PersonagemService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -73,13 +74,15 @@ class AuthController extends Controller
         // Todo aluno começa com o personagem inicial gratuito (Lumi) equipado.
         app(PersonagemService::class)->garantirInicial($aluno);
         $streak = app(LoginStreakService::class)->registrarEntrada($aluno);
+        app(ConquistaService::class)->sincronizar($aluno);
+        $perfil = $aluno->perfil()->firstOrFail();
 
         $token = $aluno->createToken('aluno')->plainTextToken;
 
         return response()->json([
             'aluno' => new AlunoResource($aluno),
             'token' => $token,
-            'perfil' => ['data' => new PerfilAlunoResource($streak['perfil'])],
+            'perfil' => ['data' => new PerfilAlunoResource($perfil)],
             'streak' => $streak['streak'],
         ]);
     }

@@ -5,6 +5,7 @@ namespace App\Services\Conquista;
 use App\Models\Aluno;
 use App\Models\Conquista;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ConquistaService
 {
@@ -27,11 +28,25 @@ class ConquistaService
             ->values();
 
         foreach ($novas as $conquista) {
-            $aluno->conquistas()->attach($conquista->id, ['desbloqueada_em' => now()]);
-            $this->aplicarRecompensa($aluno, $conquista);
+            $inserted = DB::table('aluno_conquista')->insertOrIgnore([
+                'aluno_id' => $aluno->id,
+                'conquista_id' => $conquista->id,
+                'desbloqueada_em' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            if ($inserted > 0) {
+                $this->aplicarRecompensa($aluno, $conquista);
+            }
         }
 
         return $novas;
+    }
+
+    public function sincronizar(Aluno $aluno): void
+    {
+        $this->avaliar($aluno);
     }
 
     /**

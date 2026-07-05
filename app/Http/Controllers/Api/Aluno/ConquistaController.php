@@ -14,6 +14,8 @@ class ConquistaController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->service->sincronizar($request->user());
+
         return ConquistaProgressoResource::collection(
             $this->service->progresso($request->user()),
         );
