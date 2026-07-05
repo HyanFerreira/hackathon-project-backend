@@ -33,9 +33,11 @@ class DemoCartoes extends Command
         }
 
         $base = rtrim($this->option('url') ?: env('FRONTEND_URL', 'http://127.0.0.1:3000'), '/');
-        $mascote = 'data:image/png;base64,'.base64_encode(File::get(public_path('demo/mascote.png')));
+        $logo = $this->logoBase64();
+        $conquistas = $this->conquistasBase64();
+        $totalConquistas = count($conquistas);
 
-        $alunos = $turma->alunos()->orderBy('nome')->get()->map(function ($aluno) use ($base) {
+        $alunos = $turma->alunos()->orderBy('nome')->get()->values()->map(function ($aluno, $i) use ($base, $conquistas, $totalConquistas) {
             $url = "{$base}/login/estudante?codigo={$aluno->codigo}";
             $png = QrCode::format('png')->size(320)->margin(1)->errorCorrection('M')->generate($url);
 
@@ -43,13 +45,13 @@ class DemoCartoes extends Command
                 'nome' => $aluno->nome,
                 'codigo' => $aluno->codigo,
                 'qr' => 'data:image/png;base64,'.base64_encode($png),
+                'conquista' => $totalConquistas > 0 ? $conquistas[$i % $totalConquistas] : null,
             ];
         });
 
         $pdf = Pdf::loadView('demo.cartoes', [
             'alunos' => $alunos,
-            'mascote' => $mascote,
-            'sistema' => 'Paideia',
+            'logo' => $logo,
         ])->setPaper('a4', 'portrait');
 
         $saida = $this->option('saida') ?: storage_path('app/demo/cartoes-alunos.pdf');
@@ -69,5 +71,47 @@ class DemoCartoes extends Command
             ->where('nome', DemoAlunosSeeder::TURMA)
             ->whereHas('escola', fn ($q) => $q->where('nome', EscolaSeeder::PRINCIPAL))
             ->first();
+    }
+
+    /**
+     * Logo do sistema (SVG) rasterizada em PNG base64 (fundo transparente).
+     */
+    private function logoBase64(): string
+    {
+        $img = new \Imagick;
+        $img->setBackgroundColor(new \ImagickPixel('transparent'));
+        $img->readImage(public_path('demo/logo.svg'));
+        $img->setImageFormat('png');
+        $img->resizeImage(520, 0, \Imagick::FILTER_LANCZOS, 1);
+
+        return 'data:image/png;base64,'.base64_encode($img->getImageBlob());
+    }
+
+    /**
+     * Rasteriza as conquistas (SVG pixel art) em PNG base64, uma será usada por cartão.
+     *
+     * @return list<string>
+     */
+    private function conquistasBase64(): array
+    {
+        $arquivos = glob(public_path('demo/conquistas').'/ac*.svg') ?: [];
+        sort($arquivos);
+
+        $imagens = [];
+        foreach ($arquivos as $arquivo) {
+            try {
+                $img = new \Imagick;
+                $img->setBackgroundColor(new \ImagickPixel('transparent'));
+                $img->readImage($arquivo);
+                $img->setImageFormat('png');
+                $img->resizeImage(160, 160, \Imagick::FILTER_LANCZOS, 1, true);
+                $imagens[] = 'data:image/png;base64,'.base64_encode($img->getImageBlob());
+                $img->clear();
+            } catch (\Throwable $e) {
+                $this->warn("Falha ao processar {$arquivo}: {$e->getMessage()}");
+            }
+        }
+
+        return $imagens;
     }
 }
