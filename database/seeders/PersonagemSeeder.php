@@ -27,9 +27,9 @@ class PersonagemSeeder extends Seeder
         // Épicos
         ['chave' => 'drako', 'nome' => 'Drako', 'descricao' => 'Um dragãozinho destemido em formação.', 'tier' => 'epico', 'preco' => 400],
         ['chave' => 'kitsune', 'nome' => 'Kitsune', 'descricao' => 'Raposa mística de muitas caudas.', 'tier' => 'epico', 'preco' => 400],
-        ['chave' => 'fenro', 'nome' => 'Fenro', 'descricao' => 'Guardião flamejante e leal.', 'tier' => 'epico', 'preco' => 450],
 
-        // Lendário
+        // Lendários
+        ['chave' => 'fenro', 'nome' => 'Fenro', 'descricao' => 'Guardião flamejante e leal.', 'tier' => 'lendario', 'preco' => 450],
         ['chave' => 'elyra', 'nome' => 'Elyra', 'descricao' => 'Uma lenda luminosa, o ápice da jornada.', 'tier' => 'lendario', 'preco' => 600],
     ];
 
