@@ -9,6 +9,7 @@ use App\Http\Resources\Aluno\AlunoResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Aluno;
 use App\Models\User;
+use App\Services\Personagem\PersonagemService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,6 +67,9 @@ class AuthController extends Controller
                 'codigo' => ['Código de acesso inválido.'],
             ]);
         }
+
+        // Todo aluno começa com o personagem inicial gratuito (Lumi) equipado.
+        app(PersonagemService::class)->garantirInicial($aluno);
 
         $token = $aluno->createToken('aluno')->plainTextToken;
 

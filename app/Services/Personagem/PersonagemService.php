@@ -15,15 +15,48 @@ class PersonagemService
     /** Questões acumuladas (com o personagem equipado) necessárias para cada nível. */
     private const NIVEIS = [2 => 10, 3 => 30];
 
+    /** Personagem inicial gratuito que todo aluno recebe ao começar. */
+    public const CHAVE_INICIAL = 'lumi';
+
+    /** Tier do personagem gratuito (não fica à venda na loja). */
+    public const TIER_FREE = 'free';
+
     public function __construct(private readonly PerfilAlunoService $perfis) {}
 
     /**
-     * Catálogo da loja com indicação do que o aluno já possui.
+     * Garante que o aluno já possui (e tem equipado) o personagem inicial gratuito.
+     * Chamado quando o aluno inicia o sistema (login).
+     */
+    public function garantirInicial(Aluno $aluno): void
+    {
+        if ($aluno->personagens()->exists()) {
+            return;
+        }
+
+        $lumi = Personagem::query()->where('chave', self::CHAVE_INICIAL)->first();
+
+        if (! $lumi) {
+            return;
+        }
+
+        $aluno->personagens()->create([
+            'personagem_id' => $lumi->id,
+            'nivel' => 1,
+            'questoes_respondidas' => 0,
+            'equipado' => true,
+            'comprado_em' => now(),
+        ]);
+    }
+
+    /**
+     * Catálogo da loja com o que o aluno já possui. Inclui o personagem
+     * inicial gratuito (tier `free`), que aparece, mas não pode ser comprado.
      *
      * @return Collection<int, array<string, mixed>>
      */
     public function catalogo(Aluno $aluno): Collection
     {
+        $this->garantirInicial($aluno);
         $possui = $aluno->personagens()->pluck('personagem_id')->all();
 
         return Personagem::query()
@@ -37,12 +70,14 @@ class PersonagemService
     }
 
     /**
-     * Personagens do aluno com nível e progresso.
+     * Personagens do aluno com nível e progresso (inclui o inicial gratuito).
      *
      * @return Collection<int, array<string, mixed>>
      */
     public function inventario(Aluno $aluno): Collection
     {
+        $this->garantirInicial($aluno);
+
         return $aluno->personagens()->with('personagem')->get()->map(fn (AlunoPersonagem $ap) => [
             'aluno_personagem' => $ap,
             'proximo_nivel_em' => $this->questoesParaProximoNivel($ap->questoes_respondidas, $ap->personagem->nivel_maximo),
@@ -51,6 +86,12 @@ class PersonagemService
 
     public function comprar(Aluno $aluno, Personagem $personagem): AlunoPersonagem
     {
+        if ($personagem->tier === self::TIER_FREE) {
+            throw ValidationException::withMessages([
+                'personagem' => ['Este personagem não está à venda.'],
+            ]);
+        }
+
         if ($aluno->personagens()->where('personagem_id', $personagem->id)->exists()) {
             throw ValidationException::withMessages([
                 'personagem' => ['Você já possui este personagem.'],

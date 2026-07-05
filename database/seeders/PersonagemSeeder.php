@@ -14,6 +14,9 @@ class PersonagemSeeder extends Seeder
      * @var list<array{chave:string,nome:string,descricao:string,tier:string,preco:int}>
      */
     private const PERSONAGENS = [
+        // Inicial gratuito — todo aluno começa com ele (não é comprável)
+        ['chave' => 'lumi', 'nome' => 'Lumi', 'descricao' => 'O jovem aprendiz que começa a jornada com você.', 'tier' => 'free', 'preco' => 0],
+
         // Comuns
         ['chave' => 'grunt_chibi', 'nome' => 'Grunt', 'descricao' => 'Um parceiro atrapalhado, mas cheio de vontade.', 'tier' => 'comum', 'preco' => 100],
         ['chave' => 'pip_chibi_v2', 'nome' => 'Pip', 'descricao' => 'Pequeno, rápido e curioso.', 'tier' => 'comum', 'preco' => 100],
